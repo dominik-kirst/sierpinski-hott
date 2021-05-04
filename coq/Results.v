@@ -50,17 +50,107 @@ Proof.
   - intros x. cbn. destruct UC as [y Hy]. eapply merely_destruct; try apply Hy. now intros [].
 Qed.
 
+Section LEM.
 
-Theorem GCH_LEM :
-  GCH -> ExcludedMiddle.
+  Variable X : hSet.
+  Variable P : hProp.
+
+  Context {PR : PropResizing}.
+  Context {FE : Funext}.
+
+  Definition hpaths (x y : X) :=
+    BuildhProp (paths x y).
+
+  Definition sing (p : X -> hProp) :=
+    exists x, p = hpaths x.
+
+  Definition Y :=
+    { p : X -> hProp | sing p \/ (P + ~ P) }.
+
+  Lemma Cantor_inj :
+    ~ inject (X -> hProp) X.
+  Proof.
+    intros [i HI]. pose (p n := BuildhProp (resize_hprop (forall q, i q = n -> ~ q n))).
+    enough (Hp : p (i p) <-> ~ p (i p)).
+    { apply Hp; apply Hp; intros H; now apply Hp. }
+    unfold p at 1. split.
+    - intros H. apply equiv_resize_hprop in H. apply H. reflexivity.
+    - intros H. apply equiv_resize_hprop. intros q -> % HI. apply H.
+  Qed.
+
+  Lemma Cantor_sing (i : (X -> hProp) -> (X -> hProp)) :
+    IsInjective i -> exists p, ~ sing (i p).
+  Proof.
+    intros HI. pose (p n := BuildhProp (resize_hprop (forall q, i q = hpaths n -> ~ q n))).
+    exists p. intros [n HN]. enough (Hp : p n <-> ~ p n).
+    { apply Hp; apply Hp; intros H; now apply Hp. }
+    unfold p at 1. split.
+    - intros H. apply equiv_resize_hprop in H. apply H, HN.
+    - intros H. apply equiv_resize_hprop. intros q HQ. rewrite <- HN in HQ. now apply HI in HQ as ->.
+  Qed.
+
+  Lemma sig_inj {Z} (r : Z -> hProp) :
+    IsInjective (@proj1 Z r).
+  Proof.
+    intros [p Hp] [q Hq]; cbn.
+    intros ->. unshelve eapply path_sigma; cbn.
+    - reflexivity.
+    - cbn. apply (r q).
+  Qed.
+
+  Lemma Y_inj :
+    (P + ~ P) -> inject (X -> hProp) Y.
+  Proof.
+    intros HP. unshelve eexists.
+    - intros p. exists p. apply tr. now right.
+    - intros p q. intros H. change p with ((exist (fun r => sing r \/ (P + ~ P)) p (tr (inr HP))).1).
+      rewrite H. cbn. reflexivity.
+  Qed.
+
+  Lemma IsInjective_trans {X' Y Z} (f : X' -> Y) (g : Y -> Z) :
+    IsInjective f -> IsInjective g -> IsInjective (fun x => g (f x)).
+  Proof.
+    intros HF HG x y H. now apply HF, HG.
+  Qed.
+
+  Theorem CH_LEM :
+    (inject X Y -> inject Y (X -> hProp) -> ~ (inject Y X) -> hinject (X -> hProp) Y) -> P \/ ~ P.
+  Proof.
+    intros ch. eapply merely_destruct; try apply ch.
+    - unshelve eexists.
+      + intros x. exists (hpaths x). apply tr. left. exists x. reflexivity.
+      + intros x y. intros H % pr1_path. cbn in H. change (hpaths x y). now rewrite H.
+    - exists (@proj1 _ _). now apply sig_inj.
+    - intros H. assert (HP' : ~ ~ (P + ~ P)).
+      { intros HP. apply HP. right. intros p. apply HP. now left. }
+      apply HP'. intros HP % Y_inj. clear HP'.
+      apply Cantor_inj. now apply (inject_trans HP).
+    - intros [i Hi]. destruct (Cantor_sing (fun p => @proj1 _ _ (i p))) as [p HP].
+      + apply IsInjective_trans; trivial. now apply sig_inj.
+      + destruct (i p) as [q Hq]; cbn in *.
+        eapply merely_destruct; try apply Hq.
+        intros [H|H]; try now apply tr.
+  Qed.
+
+End LEM.
+
+Theorem GCH_LEM {PR : PropResizing} {UA : Univalence} :
+  GCH -> (forall P : hProp, P \/ ~ P).
 Proof.
-Admitted.
+  intros gch P. eapply (CH_LEM (BuildhSet nat)); try exact _. intros H1 H2 H3.
+  destruct (gch (BuildhSet nat) (BuildhSet (Y (BuildhSet nat) P))) as [H|H].
+  - cbn. exists idmap. apply isinj_idmap.
+  - apply tr. apply H1.
+  - apply tr. apply H2.
+  - apply Empty_rec. eapply merely_destruct; try apply H. apply H3.
+  - apply H.
+Qed.
 
 Parameter hartogs_number : hSet@{i} -> Ordinal@{i _}.     
 
-Theorem GCH_AC {UA : Univalence} {PR : PropResizing} :
+Theorem GCH_AC {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
   GCH -> AC.
 Proof.
-  intros gch. assert (LEM : ExcludedMiddle). { now apply GCH_LEM. }
+  intros gch.
   apply WO_AC. intros X. apply tr. exists (hartogs_number (BuildhSet (BuildhSet (nat + X) -> hProp))).
   apply (@Sierpinski UA LEM PR (fun X => hartogs_number X) _ 3 _ X gch).

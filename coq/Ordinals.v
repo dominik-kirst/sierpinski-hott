@@ -1122,7 +1122,7 @@ Section Hartogs_Number.
 
   (* This definition fails because the propositional resizing in the definition of `hartogs_number'_injection` had to be removed. For details, see the comment in the definition of `hartogs_number'_injection` *)
   Fail Definition hartogs_number_carrier `{ExcludedMiddle} : Type@{A} :=
-    {X : 𝒫 (𝒫 (𝒫 A)) | resize_hprop (merely (exists a, X = hartogs_number'_injection.1 a))}.
+    {X : 𝒫 (𝒫 (𝒫 A)) | resize_hprop (merely (exists a, hartogs_number'_injection.1 a = X))}.
 
   (* `resize_ordinal` should be used to transport the ordinal structure from `hartogs_number'`. Then one can transport the results about the cardinality of `hartogs_number`. *)
 

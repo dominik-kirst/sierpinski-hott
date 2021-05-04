@@ -317,8 +317,8 @@ Qed.
 
 (** ** Iterated Powers *)
 
-Lemma inject_power (X : Type) :
-  IsHSet X -> inject X (X -> hProp : Type).
+Lemma inject_power X :
+  IsHSet X -> inject X (X -> hProp).
 Proof.
   intros HX.
   set (f (x : X) := fun y => BuildhProp (resize_hprop (x = y))).
@@ -407,21 +407,21 @@ Proof.
 Qed.
 
 Definition GCH :=
-  forall X Y, infinite X -> hinject X Y -> hinject Y (X -> hProp) -> hinject Y X + hinject (X -> hProp) Y.
+  forall X Y : hSet, infinite X -> hinject X Y -> hinject Y (X -> hProp) -> hinject Y X + hinject (X -> hProp) Y.
 
-Lemma hProp_impred X (F : X -> Type) :
+(*Instance hProp_impred X (F : X -> Type) :
   (forall x, IsHProp (F x)) -> IsHProp (forall x, F x).
 Proof.
   intros H. apply hprop_allpath. intros f g.
   apply path_forall. intros x. apply H.
-Qed.
+Qed.*)
 
 Lemma Sierpinski_step (X : hSet) n :
   GCH -> infinite X -> powfix X -> hinject (HN X) (powit X n) -> hinject X (HN X).
 Proof.
   intros gch H1 H2 Hi. induction n.
   - now apply HN_ninject in Hi.
-  - destruct (gch (powit X n) (powit X n + HN X)) as [H|H].
+  - destruct (gch (BuildhSet (powit X n)) (BuildhSet (powit X n + HN X))) as [H|H].
     + now apply infinite_powit.
     + apply tr. exists inl. intros x x'. apply path_sum_inl.
     + eapply hinject_trans.
