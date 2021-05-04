@@ -1006,9 +1006,9 @@ Section Hartogs_Number.
       intros X. intros x1 x2. exact (x1.1 ⊂ x2.1).
     }
     unshelve eexists.
-    - intros [B _]. intros X. apply merely.
+    - intros [B _]. intros X.
       (* `resize_hprop` should be used here to get the right universe level. But for some reason, that caused very bad performance for the rest of the proof. If a direct fix is too much work then one could leave it as it is and compose `hartogs_number'_injection` aftwerwards with an injection that just fixes the universe levels. *)
-      exact (Isomorphism (X : Type; ϕ X) B).
+      exact (BuildhProp (resize_hprop (merely (Isomorphism (X : Type; ϕ X) B)))).
     - intros [B B_A] [C C_A] H0. apply path_sigma_hprop; cbn.
       revert B_A. rapply Trunc_rec. intros [f injective_f].
       apply equiv_path_Ordinal.
@@ -1099,8 +1099,9 @@ Section Hartogs_Number.
         }
         auto.
       }
-      rewrite <- H0. apply tr.
-      assumption.
+      eapply equiv_resize_hprop.
+      change (trunctype_type (BuildhProp (resize_hprop (Trunc (-1) (Isomorphism (X : Type; ϕ X) C))))).
+      rewrite <- H0. cbn. apply equiv_resize_hprop. apply tr. exact iso.
   Qed.
 
   Definition resize_ordinal@{i j +}

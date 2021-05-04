@@ -132,7 +132,7 @@ Proof.
     apply path_sigma_hprop. cbn. now apply H2.
   - apply H1.
   - intros x. exact x.
-Qed.
+Defined.
 
 Definition ran (X Y : Type) (f : X -> Y) :=
   fun y => hexists (fun x => f x = y).
@@ -257,7 +257,7 @@ Qed.
 
 (** ** Version just requiring propositional injections *)
 
-Context { PR : PropResizing }.
+Context {PR : PropResizing}.
 
 Lemma Cantor_rel X (R : X -> (X -> hProp) -> hProp) :
   (forall x p p', R x p -> R x p' -> merely (p = p')) -> { p | forall x, ~ R x p }.
@@ -386,7 +386,7 @@ Qed.
 Definition powfix X :=
   forall n, (powit X n + powit X n) = (powit X n).
 
-Variable HN : Type -> Type.
+Variable HN : hSet@{i} -> hSet@{i}.
 Hypothesis HN_ninject : forall X, ~ hinject (HN X) X.
 
 Variable HN_bound : nat.
@@ -432,29 +432,22 @@ Proof.
       cbn. apply (Cantor_hinject_hinject H). rewrite (H2 n). apply tr, inject_refl.
 Qed.
 
-Definition hpower (X : hSet) :
-  hSet.
-Proof.
-  exists (X -> hProp). exact _.
-Defined.
-
 Theorem Sierpinski' (X : hSet) :
-  GCH -> infinite X -> hinject X (HN (X -> hProp)).
+  GCH -> infinite X -> hinject X (HN (BuildhSet (X -> hProp))).
 Proof.
   intros gch HX. eapply hinject_trans; try apply tr, inject_power; try apply X.
-  apply (@Sierpinski_step (hpower X) HN_bound gch).
+  apply (@Sierpinski_step (BuildhSet (X -> hProp)) HN_bound gch).
   - apply infinite_inject with X; trivial. apply inject_power. apply X.
   - intros n. cbn. rewrite !powit_shift. eapply infinite_power. cbn. now apply infinite_powit.
   - apply HN_inject.
 Qed.
 
 Theorem Sierpinski (X : hSet) :
-  GCH -> hinject X (HN (nat + X -> hProp)).
+  GCH -> hinject X (HN (BuildhSet (BuildhSet (nat + X) -> hProp))).
 Proof.
-  intros gch. eapply hinject_trans.
-  2: eapply Sierpinski'; trivial.
+  intros gch. eapply hinject_trans with (nat + X).
   - apply tr. exists inr. intros x y. apply path_sum_inr.
-  - exists inl. intros x y. apply path_sum_inl.
+  - eapply Sierpinski'; trivial. exists inl. intros x y. apply path_sum_inl.
 Qed.
 
 End Sierpinski.
