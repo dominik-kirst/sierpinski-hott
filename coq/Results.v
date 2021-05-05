@@ -164,16 +164,14 @@ Proof.
   - enough (H = H') as ->; trivial. apply (hinject (x -> hProp) x0).
 Qed.
 
-Parameter hartogs_number : hSet -> Ordinal.     
+Parameter HN : hSet -> Ordinal.
+Hypothesis HN_ninject : forall X, ~ hinject (HN X) X.
+Hypothesis HN_inject : forall X, hinject (HN X) (powit X 3).     
 
 Theorem GCH_AC {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
   GCH -> AC.
 Proof.
   intros gch.
-  apply WO_AC. intros X. apply tr. exists (hartogs_number (BuildhSet (BuildhSet (nat + X) -> hProp))).
-  eapply Sierpinski.
-
-
-
-
-  eapply (@Sierpinski UA LEM PR _ _ 3 _ X).
+  apply WO_AC. intros X. apply tr. exists (HN (BuildhSet (BuildhSet (nat + X) -> hProp))).
+  specialize (@Sierpinski UA LEM PR HN HN_ninject 3 HN_inject X gch).
+  intros h. apply h.

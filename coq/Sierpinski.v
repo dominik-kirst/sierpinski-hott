@@ -73,6 +73,7 @@ Qed.
 (** ** Equivalences relying on LEM **)
 
 Context {EM : ExcludedMiddle}.
+Context {PR : PropResizing}.
 
 Lemma SEM (P : hProp) :
   P + ~ P.
@@ -94,13 +95,13 @@ Lemma eq_bool_prop :
 Proof.
   apply path_universe_uncurried. srapply equiv_adjointify.
   - exact (fun P => if SEM P then true else false).
-  - exact (fun b : Bool => if b then merely Unit else merely Empty).
+  - exact (fun b : Bool => if b then BuildhProp (resize_hprop Unit) else BuildhProp (resize_hprop Empty)).
   - intros []; destruct SEM as [H|H]; auto.
-    + destruct (H (tr tt)).
-    + apply (@merely_destruct Empty); easy.
+    + destruct H. apply equiv_resize_hprop, tt.
+    + apply equiv_resize_hprop in H as [].
   - intros P. destruct SEM as [H|H]; apply PE.
-    + split; auto. intros _. apply tr. exact tt.
-    + split; try easy. intros HE. apply (@merely_destruct Empty); easy.
+    + split; auto. intros _. apply equiv_resize_hprop. exact tt.
+    + split; try easy. intros HE. apply equiv_resize_hprop in HE as [].
 Qed.
 
 Lemma eq_bool_subsingleton :
@@ -132,7 +133,7 @@ Proof.
     apply path_sigma_hprop. cbn. now apply H2.
   - apply H1.
   - intros x. exact x.
-Defined.
+Qed.
 
 Definition ran (X Y : Type) (f : X -> Y) :=
   fun y => hexists (fun x => f x = y).
@@ -257,8 +258,6 @@ Qed.
 
 (** ** Version just requiring propositional injections *)
 
-Context {PR : PropResizing}.
-
 Lemma Cantor_rel X (R : X -> (X -> hProp) -> hProp) :
   (forall x p p', R x p -> R x p' -> merely (p = p')) -> { p | forall x, ~ R x p }.
 Proof.
@@ -286,15 +285,19 @@ Lemma hinject_power_morph X Y :
   hinject X Y -> hinject (X -> hProp) (Y -> hProp).
 Proof.
   intros HF. eapply merely_destruct; try apply HF. intros [f Hf].
-  apply tr. exists (fun p => fun y => hexists (fun x => p x /\ y = f x)).
+  apply tr. exists (fun p => fun y => BuildhProp (resize_hprop (hexists (fun x => p x /\ y = f x)))).
   intros p q H. apply path_forall. intros x. apply PE. split; intros Hx.
-  - assert (Hp : (fun y : Y => hexists (fun x : X => p x * (y = f x))) (f x)). { apply tr. exists x. split; trivial. }
-    pattern (f x) in Hp. rewrite H in Hp. eapply merely_destruct; try apply Hp. now intros [x'[Hq <- % Hf]].
-  - assert (Hq : (fun y : Y => hexists (fun x : X => q x * (y = f x))) (f x)). { apply tr. exists x. split; trivial. }
-    pattern (f x) in Hq. rewrite <- H in Hq. eapply merely_destruct; try apply Hq. now intros [x'[Hp <- % Hf]].
+  - assert (Hp : (fun y : Y => BuildhProp (resize_hprop (hexists (fun x : X => p x * (y = f x))))) (f x)).
+    { apply equiv_resize_hprop, tr. exists x. split; trivial. }
+    pattern (f x) in Hp. rewrite H in Hp. apply equiv_resize_hprop in Hp.
+    eapply merely_destruct; try apply Hp. now intros [x'[Hq <- % Hf]].
+  - assert (Hq : (fun y : Y => BuildhProp (resize_hprop (hexists (fun x : X => q x * (y = f x))))) (f x)).
+    { apply equiv_resize_hprop, tr. exists x. split; trivial. }
+    pattern (f x) in Hq. rewrite <- H in Hq. apply equiv_resize_hprop in Hq.
+    eapply merely_destruct; try apply Hq. now intros [x'[Hp <- % Hf]].
 Qed.
 
-Fact Cantor_hinject_hinject X Y :
+Fact Cantor_hinject_hinject (X Y : hSet) :
   hinject (X -> hProp) (X + Y) -> hinject (X + X) X -> hinject (X -> hProp) Y.
 Proof.
   intros H1 H2. assert (HF : hinject ((X -> hProp) * (X -> hProp)) (X + Y)).
@@ -302,12 +305,12 @@ Proof.
     eapply hinject_trans; try apply hinject_power_morph, H2.
     rewrite eq_sum_prod. apply tr, inject_refl.
   - eapply merely_destruct; try apply HF. intros [f Hf].
-    pose (R x p := hexists (fun q => f (p, q) = inl x)). destruct (@Cantor_rel _ R) as [p Hp].
-    { intros x p p' H3 H4. eapply merely_destruct; try apply H3. intros [q Hq].
-      eapply merely_destruct; try apply H4. intros [q' Hq']. apply tr.
+    pose (R x p := hexists (fun q => resize_hprop (f (p, q) = inl x))). destruct (@Cantor_rel _ R) as [p Hp].
+    { intros x p p' H3 H4. eapply merely_destruct; try apply H3. intros [q Hq % equiv_resize_hprop].
+      eapply merely_destruct; try apply H4. intros [q' Hq' % equiv_resize_hprop]. apply tr.
       change p with (fst (p, q)). rewrite (Hf (p, q) (p', q')); trivial. now rewrite Hq, Hq'. }
     pose (f' q := f (p, q)). assert (H' : forall q x, f' q <> inl x).
-    + intros q x H. apply (Hp x). apply tr. exists q. apply H.
+    + intros q x H. apply (Hp x). apply tr. exists q. apply equiv_resize_hprop, H.
     + apply tr. exists (clean_sum H'). intros q q' H. assert (Hqq' : f' q = f' q').
       * rewrite <- !(clean_sum_spec H'). now rewrite H.
       * apply Hf in Hqq'. change q with (snd (p, q)). now rewrite Hqq'.
