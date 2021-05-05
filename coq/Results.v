@@ -146,11 +146,34 @@ Proof.
   - apply H.
 Qed.
 
-Parameter hartogs_number : hSet@{i} -> Ordinal@{i _}.     
+Instance hProp_impred {FE : Funext} X (F : X -> Type) :
+  (forall x, IsHProp (F x)) -> IsHProp (forall x, F x).
+Proof.
+  intros H. apply hprop_allpath. intros f g.
+  apply path_forall. intros x. apply H.
+Qed.
+
+Lemma GCH_hProp {PR : PropResizing} {FE : Funext} :
+  IsHProp GCH.
+Proof.
+  repeat (apply hProp_impred; intros).
+  apply hprop_allpath. intros [H|H] [H'|H'].
+  - enough (H = H') as ->; trivial. apply (hinject x0 x).
+  - apply Empty_rec. eapply merely_destruct; try eapply (Cantor_inj x); trivial. now apply hinject_trans with x0.
+  - apply Empty_rec. eapply merely_destruct; try eapply (Cantor_inj x); trivial. now apply hinject_trans with x0.
+  - enough (H = H') as ->; trivial. apply (hinject (x -> hProp) x0).
+Qed.
+
+Parameter hartogs_number : hSet -> Ordinal.     
 
 Theorem GCH_AC {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
   GCH -> AC.
 Proof.
   intros gch.
   apply WO_AC. intros X. apply tr. exists (hartogs_number (BuildhSet (BuildhSet (nat + X) -> hProp))).
-  apply (@Sierpinski UA LEM PR (fun X => hartogs_number X) _ 3 _ X gch).
+  eapply Sierpinski.
+
+
+
+
+  eapply (@Sierpinski UA LEM PR _ _ 3 _ X).

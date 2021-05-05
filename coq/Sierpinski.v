@@ -383,10 +383,12 @@ Qed.
 
 (** ** Sierpinski's Theorem *)
 
+From Sierpinski Require Import Ordinals.
+
 Definition powfix X :=
   forall n, (powit X n + powit X n) = (powit X n).
 
-Variable HN : hSet@{i} -> hSet@{i}.
+Variable HN : hSet -> Ordinal.
 Hypothesis HN_ninject : forall X, ~ hinject (HN X) X.
 
 Variable HN_bound : nat.
@@ -408,13 +410,6 @@ Qed.
 
 Definition GCH :=
   forall X Y : hSet, infinite X -> hinject X Y -> hinject Y (X -> hProp) -> hinject Y X + hinject (X -> hProp) Y.
-
-(*Instance hProp_impred X (F : X -> Type) :
-  (forall x, IsHProp (F x)) -> IsHProp (forall x, F x).
-Proof.
-  intros H. apply hprop_allpath. intros f g.
-  apply path_forall. intros x. apply H.
-Qed.*)
 
 Lemma Sierpinski_step (X : hSet) n :
   GCH -> infinite X -> powfix X -> hinject (HN X) (powit X n) -> hinject X (HN X).
