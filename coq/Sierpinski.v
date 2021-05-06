@@ -387,6 +387,8 @@ Qed.
 
 (** ** Sierpinski's Theorem *)
 
+(* This can probably be removed since HN below can be assumed as hSet -> hSet *)
+
 Require Import Sierpinski.Ordinals.
 
 Section Sierpinski.
