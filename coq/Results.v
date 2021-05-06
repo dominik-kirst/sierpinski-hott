@@ -164,23 +164,22 @@ Proof.
   - enough (H = H') as ->; trivial. apply (hinject (x -> hProp) x0).
 Qed.
 
-Theorem test' {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
-  forall HN : hSet -> Ordinal,
-       (forall X : hSet, ~ hinject (HN X) X) ->
-       forall HN_bound : nat,
-       (forall X : hSet, hinject (HN X) (powit X HN_bound)) ->
-       forall X : hSet, GCH -> infinite X -> hinject X (HN (BuildhSet (X -> hProp))).
-Proof.
-  apply Sierpinski'.
-
 Parameter HN : hSet -> Ordinal.
 Hypothesis HN_ninject : forall X, ~ hinject (HN X) X.
-Hypothesis HN_inject : forall X, hinject (HN X) (powit X 3).     
+Hypothesis HN_inject : forall X, hinject (HN X) (powit X 3).
+
+Theorem GCH_AC' {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
+  GCH -> AC.
+Proof.
+  intros gch.
+  apply WO_AC. intros X. apply tr. exists (HN (BuildhSet (BuildhSet (nat + X) -> hProp))).
+  eapply (@Sierpinski UA LEM PR HN HN_ninject 3 HN_inject X gch).
+Qed.
 
 Theorem GCH_AC {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
   GCH -> AC.
 Proof.
   intros gch.
-  apply WO_AC. intros X. apply tr. exists (HN (BuildhSet (BuildhSet (nat + X) -> hProp))).
-  specialize (@Sierpinski UA LEM PR HN HN_ninject 3 HN_inject X gch).
-  intros h. apply h.
+  apply WO_AC. intros X. apply tr. exists (hartogs_number' (BuildhSet (BuildhSet (nat + X) -> hProp))).
+  eapply (@Sierpinski UA LEM PR hartogs_number' _ 3 _ X gch).
+Qed.

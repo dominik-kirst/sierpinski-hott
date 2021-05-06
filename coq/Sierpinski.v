@@ -5,18 +5,18 @@ From HoTT Require Import HoTT.
 Set Implicit Arguments.
 Unset Strict Implicit.
 
+Open Scope type.
+
 
 
 (** ** Constructive equivalences *)
 
-Section Sierpinski.
+Section Preparation.
 
 Context {UA : Univalence}.
 
 Definition sum_fun X Y Z (p : X -> Z) (q : Y -> Z) :=
   fun z : X + Y => match z with inl x => p x | inr y => q y end.
-
-Open Scope type.
 
 Lemma eq_sum_prod X Y Z :
   (X -> Z) * (Y -> Z) = ((X + Y) -> Z).
@@ -73,7 +73,6 @@ Qed.
 (** ** Equivalences relying on LEM **)
 
 Context {EM : ExcludedMiddle}.
-Context {PR : PropResizing}.
 
 Lemma SEM (P : hProp) :
   P + ~ P.
@@ -95,13 +94,13 @@ Lemma eq_bool_prop :
 Proof.
   apply path_universe_uncurried. srapply equiv_adjointify.
   - exact (fun P => if SEM P then true else false).
-  - exact (fun b : Bool => if b then BuildhProp (resize_hprop Unit) else BuildhProp (resize_hprop Empty)).
+  - exact (fun b : Bool => if b then merely Unit else merely Empty).
   - intros []; destruct SEM as [H|H]; auto.
-    + destruct H. apply equiv_resize_hprop, tt.
-    + apply equiv_resize_hprop in H as [].
+    + destruct (H (tr tt)).
+    + apply (@merely_destruct Empty); easy.
   - intros P. destruct SEM as [H|H]; apply PE.
-    + split; auto. intros _. apply equiv_resize_hprop. exact tt.
-    + split; try easy. intros HE. apply equiv_resize_hprop in HE as [].
+    + split; auto. intros _. apply tr. exact tt.
+    + split; try easy. intros HE. apply (@merely_destruct Empty); easy.
 Qed.
 
 Lemma eq_bool_subsingleton :
@@ -196,6 +195,8 @@ Qed.
 
 (** ** Cantors's Theorem *)
 
+Context {PR : PropResizing}.
+
 Lemma Cantor X (f : X -> X -> Type) :
   { p | forall x, f x <> p }.
 Proof.
@@ -285,16 +286,12 @@ Lemma hinject_power_morph X Y :
   hinject X Y -> hinject (X -> hProp) (Y -> hProp).
 Proof.
   intros HF. eapply merely_destruct; try apply HF. intros [f Hf].
-  apply tr. exists (fun p => fun y => BuildhProp (resize_hprop (hexists (fun x => p x /\ y = f x)))).
+  apply tr. exists (fun p => fun y => hexists (fun x => p x /\ y = f x)).
   intros p q H. apply path_forall. intros x. apply PE. split; intros Hx.
-  - assert (Hp : (fun y : Y => BuildhProp (resize_hprop (hexists (fun x : X => p x * (y = f x))))) (f x)).
-    { apply equiv_resize_hprop, tr. exists x. split; trivial. }
-    pattern (f x) in Hp. rewrite H in Hp. apply equiv_resize_hprop in Hp.
-    eapply merely_destruct; try apply Hp. now intros [x'[Hq <- % Hf]].
-  - assert (Hq : (fun y : Y => BuildhProp (resize_hprop (hexists (fun x : X => q x * (y = f x))))) (f x)).
-    { apply equiv_resize_hprop, tr. exists x. split; trivial. }
-    pattern (f x) in Hq. rewrite <- H in Hq. apply equiv_resize_hprop in Hq.
-    eapply merely_destruct; try apply Hq. now intros [x'[Hp <- % Hf]].
+  - assert (Hp : (fun y : Y => hexists (fun x : X => p x * (y = f x))) (f x)). { apply tr. exists x. split; trivial. }
+    pattern (f x) in Hp. rewrite H in Hp. eapply merely_destruct; try apply Hp. now intros [x'[Hq <- % Hf]].
+  - assert (Hq : (fun y : Y => hexists (fun x : X => q x * (y = f x))) (f x)). { apply tr. exists x. split; trivial. }
+    pattern (f x) in Hq. rewrite <- H in Hq. eapply merely_destruct; try apply Hq. now intros [x'[Hp <- % Hf]].
 Qed.
 
 Fact Cantor_hinject_hinject (X Y : hSet) :
@@ -305,22 +302,26 @@ Proof.
     eapply hinject_trans; try apply hinject_power_morph, H2.
     rewrite eq_sum_prod. apply tr, inject_refl.
   - eapply merely_destruct; try apply HF. intros [f Hf].
-    pose (R x p := hexists (fun q => resize_hprop (f (p, q) = inl x))). destruct (@Cantor_rel _ R) as [p Hp].
-    { intros x p p' H3 H4. eapply merely_destruct; try apply H3. intros [q Hq % equiv_resize_hprop].
-      eapply merely_destruct; try apply H4. intros [q' Hq' % equiv_resize_hprop]. apply tr.
+    pose (R x p := hexists (fun q => f (p, q) = inl x)). destruct (@Cantor_rel _ R) as [p Hp].
+    { intros x p p' H3 H4. eapply merely_destruct; try apply H3. intros [q Hq].
+      eapply merely_destruct; try apply H4. intros [q' Hq']. apply tr.
       change p with (fst (p, q)). rewrite (Hf (p, q) (p', q')); trivial. now rewrite Hq, Hq'. }
     pose (f' q := f (p, q)). assert (H' : forall q x, f' q <> inl x).
-    + intros q x H. apply (Hp x). apply tr. exists q. apply equiv_resize_hprop, H.
+    + intros q x H. apply (Hp x). apply tr. exists q. apply H.
     + apply tr. exists (clean_sum H'). intros q q' H. assert (Hqq' : f' q = f' q').
       * rewrite <- !(clean_sum_spec H'). now rewrite H.
       * apply Hf in Hqq'. change q with (snd (p, q)). now rewrite Hqq'.
 Qed.
 
+End Preparation.
+
 
 
 (** ** Iterated Powers *)
 
-Lemma inject_power X :
+(* If put in a section, this code generates universe conflicts (probably caused by power_hset) *)
+
+Lemma inject_power {PR : PropResizing} X :
   IsHSet X -> inject X (X -> hProp).
 Proof.
   intros HX.
@@ -344,7 +345,7 @@ Proof.
   - rewrite IHn. reflexivity.
 Qed.
 
-Instance power_hset (X : hSet) :
+Instance power_hset {UA : Univalence} (X : hSet) :
   IsHSet (X -> hProp).
 Proof.
   intros p q. apply hprop_allpath. intros H H'.
@@ -353,15 +354,15 @@ Proof.
   intros x. apply isset_hProp.
 Qed.
 
-Instance powit_hset (X : hSet) n :
+Instance powit_hset {UA : Univalence} (X : hSet) n :
   IsHSet (powit X n).
 Proof.
   induction n; cbn.
   - apply X.
-  - apply (@power_hset (BuildhSet (powit X n))).
+  - apply (@power_hset UA (BuildhSet (powit X n))).
 Qed.
 
-Lemma inject_powit (X : hSet) n :
+Lemma inject_powit {UA : Univalence} {PR : PropResizing} (X : hSet) n :
   inject X (powit X n).
 Proof.
   induction n.
@@ -376,7 +377,7 @@ Proof.
   apply inject_trans.
 Qed.
 
-Lemma infinite_powit (X : hSet) n :
+Lemma infinite_powit {UA : Univalence} {PR : PropResizing} (X : hSet) n :
   infinite X -> infinite (powit X n).
 Proof.
   intros H. eapply infinite_inject; try apply H. apply inject_powit.
@@ -386,10 +387,19 @@ Qed.
 
 (** ** Sierpinski's Theorem *)
 
+Require Import Sierpinski.Ordinals.
+
+Section Sierpinski.
+
+Context {UA : Univalence}.
+Context {EM : ExcludedMiddle}.
+Context {PR : PropResizing}.
+
 Definition powfix X :=
   forall n, (powit X n + powit X n) = (powit X n).
 
-Variable HN : hSet -> hSet.
+Variable HN : hSet -> Ordinal.
+
 Hypothesis HN_ninject : forall X, ~ hinject (HN X) X.
 
 Variable HN_bound : nat.
@@ -438,12 +448,12 @@ Proof.
   - apply HN_inject.
 Qed.
 
-(* Theorem Sierpinski (X : hSet) :
-  GCH -> hinject X (HN (BuildhSet (nat + X -> hProp))).
+Theorem Sierpinski (X : hSet) :
+  GCH -> hinject X (HN (BuildhSet (BuildhSet (nat + X) -> hProp))).
 Proof.
   intros gch. eapply hinject_trans with (nat + X).
   - apply tr. exists inr. intros x y. apply path_sum_inr.
   - apply Sierpinski'; trivial. exists inl. intros x y. apply path_sum_inl.
-Qed. *)
+Qed.
 
 End Sierpinski.
