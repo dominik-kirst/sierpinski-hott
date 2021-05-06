@@ -386,12 +386,10 @@ Qed.
 
 (** ** Sierpinski's Theorem *)
 
-From Sierpinski Require Import Ordinals.
-
 Definition powfix X :=
   forall n, (powit X n + powit X n) = (powit X n).
 
-Variable HN : hSet -> Ordinal.
+Variable HN : hSet -> hSet.
 Hypothesis HN_ninject : forall X, ~ hinject (HN X) X.
 
 Variable HN_bound : nat.
@@ -440,12 +438,12 @@ Proof.
   - apply HN_inject.
 Qed.
 
-Theorem Sierpinski (X : hSet) :
-  GCH -> hinject X (HN (BuildhSet (BuildhSet (nat + X) -> hProp))).
+(* Theorem Sierpinski (X : hSet) :
+  GCH -> hinject X (HN (BuildhSet (nat + X -> hProp))).
 Proof.
   intros gch. eapply hinject_trans with (nat + X).
   - apply tr. exists inr. intros x y. apply path_sum_inr.
-  - eapply Sierpinski'; trivial. exists inl. intros x y. apply path_sum_inl.
-Qed.
+  - apply Sierpinski'; trivial. exists inl. intros x y. apply path_sum_inl.
+Qed. *)
 
 End Sierpinski.

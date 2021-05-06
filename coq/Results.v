@@ -164,6 +164,15 @@ Proof.
   - enough (H = H') as ->; trivial. apply (hinject (x -> hProp) x0).
 Qed.
 
+Theorem test' {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
+  forall HN : hSet -> Ordinal,
+       (forall X : hSet, ~ hinject (HN X) X) ->
+       forall HN_bound : nat,
+       (forall X : hSet, hinject (HN X) (powit X HN_bound)) ->
+       forall X : hSet, GCH -> infinite X -> hinject X (HN (BuildhSet (X -> hProp))).
+Proof.
+  apply Sierpinski'.
+
 Parameter HN : hSet -> Ordinal.
 Hypothesis HN_ninject : forall X, ~ hinject (HN X) X.
 Hypothesis HN_inject : forall X, hinject (HN X) (powit X 3).     
