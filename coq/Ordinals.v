@@ -956,6 +956,7 @@ Section Hartogs_Number.
   Universe A.
   Context {univalence : Univalence}
           {prop_resizing : PropResizing}
+          {lem: ExcludedMiddle}
           (A : hSet@{A}).
 
   Fail Check { B : Ordinal@{A _} | card B <= card A } : Type@{A}.
@@ -998,7 +999,7 @@ Section Hartogs_Number.
   Infix "⊂" := subtype_inclusion (at level 50).
   Notation "(⊂)" := subtype_inclusion.
 
-  Lemma hartogs_number'_injection `{Univalence} `{lem: ExcludedMiddle}
+  Lemma hartogs_number'_injection
     : exists f : hartogs_number' -> 𝒫 (𝒫 (𝒫 A)),
         IsInjective f.
   Proof.
@@ -1008,7 +1009,7 @@ Section Hartogs_Number.
     unshelve eexists.
     - intros [B _]. intros X.
       (* `resize_hprop` should be used here to get the right universe level. But for some reason, that caused very bad performance for the rest of the proof. If a direct fix is too much work then one could leave it as it is and compose `hartogs_number'_injection` aftwerwards with an injection that just fixes the universe levels. *)
-      exact (BuildhProp (resize_hprop (merely (Isomorphism (X : Type; ϕ X) B)))).
+      exact (merely (Isomorphism (X : Type; ϕ X) B)).
     - intros [B B_A] [C C_A] H0. apply path_sigma_hprop; cbn.
       revert B_A. rapply Trunc_rec. intros [f injective_f].
       apply equiv_path_Ordinal.
@@ -1099,9 +1100,7 @@ Section Hartogs_Number.
         }
         auto.
       }
-      eapply equiv_resize_hprop.
-      change (trunctype_type (BuildhProp (resize_hprop (Trunc (-1) (Isomorphism (X : Type; ϕ X) C))))).
-      rewrite <- H0. cbn. apply equiv_resize_hprop. apply tr. exact iso.
+      rewrite <- H0. cbn. apply tr. exact iso.
   Qed.
 
   Definition resize_ordinal@{i j +}
@@ -1120,9 +1119,34 @@ Section Hartogs_Number.
         * apply eisretr.
   Defined.
 
+  Definition univ_fix (H : 𝒫 (𝒫 (𝒫 A))) :
+    ((𝒫 (𝒫 (𝒫 A))) : Type@{A}).
+  Proof.
+    exact (fun p => BuildhProp (resize_hprop (H (fun q =>
+    BuildhProp (resize_hprop (p (fun x : A => BuildhProp (resize_hprop (q x))))))))).
+  Defined.
+
   (* This definition fails because the propositional resizing in the definition of `hartogs_number'_injection` had to be removed. For details, see the comment in the definition of `hartogs_number'_injection` *)
-  Fail Definition hartogs_number_carrier `{ExcludedMiddle} : Type@{A} :=
-    {X : 𝒫 (𝒫 (𝒫 A)) | resize_hprop (merely (exists a, hartogs_number'_injection.1 a = X))}.
+  Definition hartogs_number_carrier : Type@{A} :=
+    {X : 𝒫 (𝒫 (𝒫 A)) | resize_hprop (merely (exists a, univ_fix (hartogs_number'_injection.1 a) = X))}.
+
+  Lemma hartogs_equiv :
+    hartogs_number_carrier <~> hartogs_number'.
+  Proof.
+    srapply equiv_adjointify.
+    - intros [X HX]. 
+  Admitted.
+
+  Lemma hartogs_eq :
+    hartogs_number_carrier = hartogs_number'.
+  Proof.
+    apply path_universe_uncurried, hartogs_equiv.
+  Qed.
+
+  Definition hartogs_number : Ordinal@{A _} :=
+    resize_ordinal hartogs_number' hartogs_number_carrier hartogs_equiv.
+
+  
 
   (* `resize_ordinal` should be used to transport the ordinal structure from `hartogs_number'`. Then one can transport the results about the cardinality of `hartogs_number`. *)
 

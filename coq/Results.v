@@ -180,6 +180,7 @@ Theorem GCH_AC {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
   GCH -> AC.
 Proof.
   intros gch.
-  apply WO_AC. intros X. apply tr. exists (hartogs_number' (BuildhSet (BuildhSet (nat + X) -> hProp))).
-  eapply (@Sierpinski UA LEM PR hartogs_number' _ 3 _ X gch).
+  apply WO_AC. intros X. apply tr. exists (hartogs_number (BuildhSet (BuildhSet (nat + X) -> hProp))).
+  unshelve eapply (@Sierpinski UA LEM PR hartogs_number _ 3 _ X gch).
+  - 
 Qed.
