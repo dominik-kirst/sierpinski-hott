@@ -1009,7 +1009,7 @@ Section Hartogs_Number.
     unshelve eexists.
     - intros [B _]. intros X.
       (* `resize_hprop` should be used here to get the right universe level. But for some reason, that caused very bad performance for the rest of the proof. If a direct fix is too much work then one could leave it as it is and compose `hartogs_number'_injection` aftwerwards with an injection that just fixes the universe levels. *)
-      exact (merely (Isomorphism (X : Type; ϕ X) B)).
+      exact (BuildhProp (resize_hprop (merely (Isomorphism (X : Type; ϕ X) B)))).
     - intros [B B_A] [C C_A] H0. apply path_sigma_hprop; cbn.
       revert B_A. rapply Trunc_rec. intros [f injective_f].
       apply equiv_path_Ordinal.
@@ -1100,7 +1100,9 @@ Section Hartogs_Number.
         }
         auto.
       }
-      rewrite <- H0. cbn. apply tr. exact iso.
+      eapply equiv_resize_hprop.
+      change (trunctype_type (BuildhProp (resize_hprop (Trunc (-1) (Isomorphism (X : Type; ϕ X) C))))).
+       rewrite <- H0. cbn. apply equiv_resize_hprop. apply tr. exact iso.
   Qed.
 
   Definition resize_ordinal@{i j +}
@@ -1126,48 +1128,38 @@ Section Hartogs_Number.
     BuildhProp (resize_hprop (p (fun x : A => BuildhProp (resize_hprop (q x))))))))).
   Defined.
 
-  Definition uni_fix' (X : Type@{A}) (p : 𝒫 X) :
-    𝒫 X : Type@{A}.
-  Proof.
-    exact (fun x => BuildhProp (resize_hprop (p x))).
-  Defined.
+  Definition equiv {X} (p q : 𝒫 X) :=
+    forall x, p x <-> q x.
 
-  Definition uni_fix'' (X : 𝒫 (𝒫 (𝒫 A))) :
+  Definition uni_fix' (X : 𝒫 (𝒫 (𝒫 A))) :
     ((𝒫 (𝒫 (𝒫 A))) : Type@{A}).
   Proof.
-    exact (uni_fix' _ X).
+    exact (fun p => BuildhProp (resize_hprop (forall X', equiv X X' -> X' (fun q =>
+    BuildhProp (resize_hprop (forall p', equiv p p' -> p' (fun x : A =>
+    BuildhProp (resize_hprop (forall q', equiv q q' -> q' x))))))))).
   Defined.
 
   Definition hartogs_number_carrier : Type@{A} :=
     {X : 𝒫 (𝒫 (𝒫 A)) | resize_hprop (merely (exists a, uni_fix (hartogs_number'_injection.1 a) = X))}.
 
-  Lemma uni_fix_eq X :
-    uni_fix X = X. 
+  Lemma uni_fix_eq (X : 𝒫 (𝒫 (𝒫 A))) :
+    X = uni_fix X. 
   Proof.
     unfold uni_fix. apply path_forall. intros p.
-    assert (H1 : (fun q : 𝒫 A =>
-           BuildhProp (resize_hprop (p (fun x : A => BuildhProp (resize_hprop (q x)))))) = p).
+    assert (H1 : p = (fun q : 𝒫 A =>
+           BuildhProp (resize_hprop (p (fun x : A => BuildhProp (resize_hprop (q x))))))).
     - apply path_forall. intros q.
-      assert (H2 : (fun x : A => BuildhProp (resize_hprop (q x))) = q).
-      + apply path_forall. intros x. symmetry. apply path_trunctype. cbn. apply equiv_resize_hprop.
-      + rewrite H2. symmetry. apply path_trunctype. cbn. apply equiv_resize_hprop.
-    - rewrite H1. symmetry. apply path_trunctype. cbn. apply equiv_resize_hprop.
+      assert (H2 : q = (fun x : A => BuildhProp (resize_hprop (q x)))).
+      + apply path_forall. intros x. apply path_trunctype. cbn. apply equiv_resize_hprop.
+      + rewrite <- H2. apply path_trunctype. cbn. apply equiv_resize_hprop.
+    - rewrite <- H1. apply path_trunctype. cbn. apply equiv_resize_hprop.
   Qed.
 
-  Lemma uni_fix_inj' :
-    IsInjective uni_fix.
+  Lemma uni_fix_inj (X Y : 𝒫 (𝒫 (𝒫 A))) :
+    uni_fix X = uni_fix Y -> X = Y.
   Proof.
-    intros X Y H. rewrite <- (uni_fix_eq X), <- (uni_fix_eq Y). apply H.
+    intros H. rewrite (uni_fix_eq X), (uni_fix_eq Y). now rewrite H.
   Qed.
-
-  Lemma uni_fix_inj :
-    IsInjective uni_fix.
-  Proof.
-    intros X Y. intros H.
-    apply path_forall. intros p.
-    assert (uni_fix X p).
-    - apply equiv_resize_hprop.
-  Admitted.
 
   Lemma hset_equiv_bij {X Y} (f : X -> Y) :
     IsHSet Y -> IsInjective f -> (forall y, merely (exists x, f x = y)) -> X <~> Y.
