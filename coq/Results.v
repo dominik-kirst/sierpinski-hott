@@ -182,5 +182,6 @@ Proof.
   intros gch.
   apply WO_AC. intros X. apply tr. exists (hartogs_number (BuildhSet (BuildhSet (nat + X) -> hProp))).
   unshelve eapply (@Sierpinski UA LEM PR hartogs_number _ 3 _ X gch).
-  - 
+  - admit.
+  - intros Y. apply tr. apply hartogs_number_injection.
 Qed.

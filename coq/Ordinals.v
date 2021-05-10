@@ -1000,7 +1000,7 @@ Section Hartogs_Number.
   Notation "(⊂)" := subtype_inclusion.
 
   Lemma hartogs_number'_injection
-    : exists f : hartogs_number' -> 𝒫 (𝒫 (𝒫 A)),
+    : exists f : hartogs_number' -> (𝒫 (𝒫 (𝒫 A)) : Type),
         IsInjective f.
   Proof.
     transparent assert (ϕ : (forall X : 𝒫 (𝒫 A), Lt X)). {
@@ -1119,23 +1119,85 @@ Section Hartogs_Number.
         * apply eisretr.
   Defined.
 
-  Definition univ_fix (H : 𝒫 (𝒫 (𝒫 A))) :
+  Definition uni_fix (X : 𝒫 (𝒫 (𝒫 A))) :
     ((𝒫 (𝒫 (𝒫 A))) : Type@{A}).
   Proof.
-    exact (fun p => BuildhProp (resize_hprop (H (fun q =>
+    exact (fun p => BuildhProp (resize_hprop (X (fun q =>
     BuildhProp (resize_hprop (p (fun x : A => BuildhProp (resize_hprop (q x))))))))).
   Defined.
 
-  (* This definition fails because the propositional resizing in the definition of `hartogs_number'_injection` had to be removed. For details, see the comment in the definition of `hartogs_number'_injection` *)
+  Definition uni_fix' (X : Type@{A}) (p : 𝒫 X) :
+    𝒫 X : Type@{A}.
+  Proof.
+    exact (fun x => BuildhProp (resize_hprop (p x))).
+  Defined.
+
+  Definition uni_fix'' (X : 𝒫 (𝒫 (𝒫 A))) :
+    ((𝒫 (𝒫 (𝒫 A))) : Type@{A}).
+  Proof.
+    exact (uni_fix' _ X).
+  Defined.
+
   Definition hartogs_number_carrier : Type@{A} :=
-    {X : 𝒫 (𝒫 (𝒫 A)) | resize_hprop (merely (exists a, univ_fix (hartogs_number'_injection.1 a) = X))}.
+    {X : 𝒫 (𝒫 (𝒫 A)) | resize_hprop (merely (exists a, uni_fix (hartogs_number'_injection.1 a) = X))}.
+
+  Lemma uni_fix_eq X :
+    uni_fix X = X. 
+  Proof.
+    unfold uni_fix. apply path_forall. intros p.
+    assert (H1 : (fun q : 𝒫 A =>
+           BuildhProp (resize_hprop (p (fun x : A => BuildhProp (resize_hprop (q x)))))) = p).
+    - apply path_forall. intros q.
+      assert (H2 : (fun x : A => BuildhProp (resize_hprop (q x))) = q).
+      + apply path_forall. intros x. symmetry. apply path_trunctype. cbn. apply equiv_resize_hprop.
+      + rewrite H2. symmetry. apply path_trunctype. cbn. apply equiv_resize_hprop.
+    - rewrite H1. symmetry. apply path_trunctype. cbn. apply equiv_resize_hprop.
+  Qed.
+
+  Lemma uni_fix_inj' :
+    IsInjective uni_fix.
+  Proof.
+    intros X Y H. rewrite <- (uni_fix_eq X), <- (uni_fix_eq Y). apply H.
+  Qed.
+
+  Lemma uni_fix_inj :
+    IsInjective uni_fix.
+  Proof.
+    intros X Y. intros H.
+    apply path_forall. intros p.
+    assert (uni_fix X p).
+    - apply equiv_resize_hprop.
+  Admitted.
+
+  Lemma hset_equiv_bij {X Y} (f : X -> Y) :
+    IsHSet Y -> IsInjective f -> (forall y, merely (exists x, f x = y)) -> X <~> Y.
+  Proof.
+    intros HY Hf H. srapply equiv_adjointify.
+    - exact f.
+    - intros y. enough (Hy : exists x, f x = y) by apply (proj1 Hy).
+      unshelve eapply merely_destruct; try apply H.
+      + apply hprop_allpath. intros [x Hx] [x' Hx'].
+        assert (Hxx : x = x'). { apply Hf. rewrite Hx, Hx'. reflexivity. }
+        destruct Hxx. apply ap. apply HY.
+      + intros [x Hx]. exists x. apply Hx.
+    - intros y. cbn. now destruct merely_destruct.
+    - intros x. cbn. destruct merely_destruct; try now apply Hf.
+  Qed.
 
   Lemma hartogs_equiv :
     hartogs_number_carrier <~> hartogs_number'.
   Proof.
-    srapply equiv_adjointify.
-    - intros [X HX]. 
-  Admitted.
+    apply equiv_inverse. unshelve eapply hset_equiv_bij.
+    - intros a. exists (uni_fix (hartogs_number'_injection.1 a)).
+      apply equiv_resize_hprop, tr. exists a. reflexivity.
+    - exact _.
+    - intros a b. intros H % pr1_path. cbn in H.
+      eapply uni_fix_inj in H. now apply hartogs_number'_injection.2.
+    - intros [X HX]. eapply merely_destruct.
+      + eapply equiv_resize_hprop, HX.
+      + intros [a <-]. cbn. apply tr. exists a. cbn. apply ap.
+        apply ishprop_resize_hprop.
+  Qed.
 
   Lemma hartogs_eq :
     hartogs_number_carrier = hartogs_number'.
@@ -1146,9 +1208,26 @@ Section Hartogs_Number.
   Definition hartogs_number : Ordinal@{A _} :=
     resize_ordinal hartogs_number' hartogs_number_carrier hartogs_equiv.
 
-  
+  Lemma hartogs_number_injection :
+    exists f : hartogs_number -> 𝒫 (𝒫 (𝒫 A)), IsInjective f.
+  Proof.  
+    cbn. exists proj1. intros [X HX] [Y HY]. cbn. intros ->.
+    apply ap. apply ishprop_resize_hprop.
+  Qed.
 
-  (* `resize_ordinal` should be used to transport the ordinal structure from `hartogs_number'`. Then one can transport the results about the cardinality of `hartogs_number`. *)
+  Lemma hartogs_number_ninjection :
+    ~ (exists f : hartogs_number -> A, IsInjective f).
+  Proof.
+    cbn. intros [f Hf]. cbn in f.
+    transparent assert (HNO' : hartogs_number').
+    { exists hartogs_number. apply tr. now exists f. }
+    (*transparent assert (HNO : hartogs_number).
+    { exists (univ_fix (hartogs_number'_injection.1 HNO')).
+      apply equiv_resize_hprop. apply tr. now exists HNO'. }*)
+    specialize (isomorphism_to_initial_segment hartogs_number').
+    intros [R HR]. cbn in *. pose (HNO := R HNO').
+    assert (Isomorphism hartogs_number HNO).
+    
 
 
 End Hartogs_Number.
