@@ -950,6 +950,21 @@ Qed.
 
 (*** Hartogs number *)
 
+ Lemma htransitive_Isomorphism
+  : forall A B C,
+    merely (Isomorphism A B)
+    -> merely (Isomorphism B C)
+    -> merely (Isomorphism A C).
+  Proof.
+    intros [A' R__A] [B R__B] [C R__C] H1 H2.
+    eapply merely_destruct; try apply H1. intros [f Hf].
+    eapply merely_destruct; try apply H2. intros [g Hg].
+    apply tr. exists (equiv_compose' g f).
+    intros a a'.
+    split.
+    - intros a_a'. apply Hg. apply Hf. exact a_a'.
+    - intros gfa_gfa'. apply Hf. apply Hg. exact gfa_gfa'.
+  Defined.
 
 Section Hartogs_Number.
 
@@ -998,6 +1013,247 @@ Section Hartogs_Number.
 
   Infix "⊂" := subtype_inclusion (at level 50).
   Notation "(⊂)" := subtype_inclusion.
+
+  (*Lemma incl :
+    forall X : 𝒫 (𝒫 A), Lt X.
+  Proof.
+    intros X. intros x1 x2. exact (x1.1 ⊂ x2.1).
+  Defined.
+
+  Definition hn_injection :
+    hartogs_number' -> (𝒫 (𝒫 (𝒫 A)) : Type@{A}).
+  Proof.
+    intros [B _] X. exact (BuildhProp (resize_hprop (merely (Isomorphism (X : Type; incl X) B)))).
+  Defined.
+
+  Universe B.
+  Constraint A < B.
+
+  Definition uni_fix (X : 𝒫 (𝒫 A) : Type@{B}) :
+    ((𝒫 (𝒫 A)) : Type@{A}).
+  Proof.
+    exact (fun p => BuildhProp (resize_hprop (X (fun x : A => BuildhProp (resize_hprop (p x)))))).
+  Defined.
+
+  Lemma uni_fix_iso (X : 𝒫 (𝒫 A) : Type@{B}) :
+    Isomorphism (X : Type@{B}; incl X) (uni_fix X : Type@{A}; incl (uni_fix X)).
+  Proof.
+     unshelve esplit.
+    - srapply equiv_adjointify.
+      + intros [p Hp]. unfold uni_fix. unshelve eexists. 1: exact (fun x => (p x)).
+        apply equiv_resize_hprop. assert (p = (fun x0 : A => BuildhProp (resize_hprop (p x0)))) as <-.
+        { apply path_forall. intros y. apply path_iff_hprop; apply equiv_resize_hprop. } apply Hp.
+      + intros [p Hp % equiv_resize_hprop]. unshelve eexists.
+        1: exact (fun x : A => BuildhProp (resize_hprop (p x))). apply Hp.
+      + intros [p Hp]. simpl. apply path_sigma_hprop. cbn.
+        apply path_forall. intros y. apply path_iff_hprop; apply equiv_resize_hprop.
+      + intros [p Hp]. simpl. apply path_sigma_hprop. cbn.
+        apply path_forall. intros y. apply path_iff_hprop; apply equiv_resize_hprop.
+    - intros [p Hp] [q Hq]. simpl. unfold incl. cbn. reflexivity.
+  Defined.
+
+  Lemma hn_inj :
+    IsInjective hn_injection.
+  Proof.
+    intros [B B_A] [C C_A] H0. unfold hn_injection in H0. apply path_sigma_hprop; cbn.
+      revert B_A. rapply Trunc_rec. intros [f injective_f].
+      apply equiv_path_Ordinal.
+      assert {X : 𝒫 (𝒫 A) & Isomorphism (X : Type; incl X) B} as [X iso]. {
+        assert (H2 :
+                  forall X : 𝒫 A,
+                    IsHProp { b : B & forall a, X a <-> exists b', b' < b /\ a = f b' }). {
+          intros X. apply hprop_allpath; intros [b1 Hb1] [b2 Hb2].
+          snrapply path_sigma_hprop; cbn.
+          - intros b. snrapply trunc_forall.
+            { exact _. }
+            intros a. srapply trunc_prod.
+            srapply trunc_arrow.
+            rapply ishprop_sigma_disjoint. intros b1' b2' [_ ->] [_ p].
+            apply (injective f). exact p.
+          - apply extensionality. intros b'. split.
+            + intros b'_b1.
+              specialize (Hb1 (f b')). apply snd in Hb1.
+              specialize (Hb1 (b'; (b'_b1, idpath))).
+              apply Hb2 in Hb1. destruct Hb1 as (? & H2 & H3).
+              apply injective in H3; try exact _. destruct H3.
+              exact H2.
+            + intros b'_b2.
+              specialize (Hb2 (f b')). apply snd in Hb2.
+              specialize (Hb2 (b'; (b'_b2, idpath))).
+              apply Hb1 in Hb2. destruct Hb2 as (? & H2 & H3).
+              apply injective in H3; try exact _. destruct H3.
+              exact H2.
+        }
+        exists (fun X : 𝒫 A =>
+             BuildhProp { b : B & forall a, X a <-> exists b', b' < b /\ a = f b' }). {
+          unfold subtype_as_type'.
+          unshelve eexists.
+          - srapply equiv_adjointify.
+            + intros [X [b _]]. exact b.
+            + intros b.
+              unshelve eexists (fun a => BuildhProp (exists b', b' < b /\ a = f b'))
+              ; try exact _. {
+                apply hprop_allpath. intros [b1 [b1_b p]] [b2 [b2_b q]].
+                apply path_sigma_hprop; cbn. apply (injective f).
+                destruct p, q. reflexivity.
+              }
+              exists b. intros b'. cbn. reflexivity.
+            + cbn. reflexivity.
+            + cbn. intros [X [b Hb]]. apply path_sigma_hprop. cbn.
+              apply path_forall; intros a. apply path_iff_hprop; apply Hb.
+          - cbn. intros [X1 [b1 H'1]] [X2 [b2 H'2]].
+            unfold incl, subtype_inclusion. cbn.
+            split.
+            + intros H3.
+              refine (Trunc_rec _ (trichotomy_ordinal b1 b2)). intros [b1_b2 | H4].
+              * exact b1_b2.
+              * revert H4. rapply Trunc_rec. intros [b1_b2 | b2_b1].
+                -- apply Empty_rec. destruct H3 as [_ H3]. revert H3. rapply Trunc_rec. intros [a [X2a not_X1a]].
+                   apply not_X1a. apply H'1. rewrite b1_b2. apply H'2. exact X2a.
+                -- apply Empty_rec. destruct H3 as [_ H3]. revert H3. rapply Trunc_rec. intros [a [X2a not_X1a]].
+                   apply not_X1a. apply H'1.
+                   apply H'2 in X2a. destruct X2a as [b' [b'_b2 a_fb']].
+                   exists b'. split.
+                   ++ transitivity b2; assumption.
+                   ++ assumption.
+            + intros b1_b2. split.
+              * intros a X1a. apply H'2. apply H'1 in X1a. destruct X1a as [b' [b'_b1 a_fb']].
+                exists b'. split.
+                -- transitivity b1; assumption.
+                -- assumption.
+              * apply tr. exists (f b1). split.
+                -- apply H'2. exists b1; auto.
+                -- intros X1_fb1. apply H'1 in X1_fb1. destruct X1_fb1 as [b' [b'_b1 fb1_fb']].
+                   apply (injective f) in fb1_fb'. destruct fb1_fb'.
+                   apply irreflexivity in b'_b1; try exact _. assumption.
+        }
+      }
+      assert (IsOrdinal X (incl X)). {
+        srefine (isordinal_simulation iso.1); try exact _.
+        intros x1 x2 p.
+        rewrite <- (eissect iso.1 x1).
+        rewrite <- (eissect iso.1 x2).
+        f_ap.
+      }
+      apply apD10 in H0. specialize (H0 (uni_fix X)). cbn in H0.
+      refine (transitive_Isomorphism _ (X : Type; incl X) _ _ _). {
+        apply isomorphism_inverse. assumption.
+      }
+      enough (merely (Isomorphism (X : Type; incl X) C)). {
+        revert X1. rapply Trunc_rec. {
+          exact (ishprop_Isomorphism (Build_Ordinal X (incl X) _) C).
+        }
+        auto.
+      }
+      eapply htransitive_Isomorphism with (uni_fix X : Type; incl (uni_fix X)).
+      - apply tr. admit.
+      - eapply equiv_resize_hprop.
+        change (trunctype_type (BuildhProp (resize_hprop (Trunc (-1) (Isomorphism (uni_fix X : Type; incl (uni_fix X)) C))))).
+        rewrite <- H0. cbn. apply equiv_resize_hprop. apply tr.
+        eapply transitive_Isomorphism; try apply iso.
+        apply isomorphism_inverse. eapply uni_fix_iso.
+  Admitted.
+
+  Lemma hn_inj :
+    IsInjective hn_injection.
+  Proof.
+    intros [B B_A] [C C_A] H0. unfold hn_injection in H0. apply path_sigma_hprop; cbn.
+      revert B_A. rapply Trunc_rec. intros [f injective_f].
+      apply equiv_path_Ordinal.
+      assert {X : (𝒫 (𝒫 A) : Type@{A}) & Isomorphism (X : Type; incl X) B} as [X iso]. {
+        assert (H2 :
+                  forall X : 𝒫 A,
+                    IsHProp { b : B & forall a, X a <-> exists b', b' < b /\ a = f b' }). {
+          intros X. apply hprop_allpath; intros [b1 Hb1] [b2 Hb2].
+          snrapply path_sigma_hprop; cbn.
+          - intros b. snrapply trunc_forall.
+            { exact _. }
+            intros a. srapply trunc_prod.
+            srapply trunc_arrow.
+            rapply ishprop_sigma_disjoint. intros b1' b2' [_ ->] [_ p].
+            apply (injective f). exact p.
+          - apply extensionality. intros b'. split.
+            + intros b'_b1.
+              specialize (Hb1 (f b')). apply snd in Hb1.
+              specialize (Hb1 (b'; (b'_b1, idpath))).
+              apply Hb2 in Hb1. destruct Hb1 as (? & H2 & H3).
+              apply injective in H3; try exact _. destruct H3.
+              exact H2.
+            + intros b'_b2.
+              specialize (Hb2 (f b')). apply snd in Hb2.
+              specialize (Hb2 (b'; (b'_b2, idpath))).
+              apply Hb1 in Hb2. destruct Hb2 as (? & H2 & H3).
+              apply injective in H3; try exact _. destruct H3.
+              exact H2.
+        }
+        exists (fun X : 𝒫 A =>
+             BuildhProp (resize_hprop { b : B & forall a, X a <-> exists b', b' < b /\ a = f b' })). {
+          unfold subtype_as_type'.
+          unshelve eexists.
+          - srapply equiv_adjointify.
+            + intros [X b]. apply equiv_resize_hprop in b as [b _]. exact b.
+            + intros b.
+              unshelve eexists (fun a => BuildhProp (resize_hprop (exists b', b' < b /\ a = f b')))
+              ; try exact _. {
+                apply hprop_allpath. intros [b1 [b1_b p]] [b2 [b2_b q]].
+                apply path_sigma_hprop; cbn. apply (injective f).
+                destruct p, q. reflexivity.
+              }
+              apply equiv_resize_hprop. exists b. intros b'. split; apply equiv_resize_hprop.
+            + simpl. intros x. rewrite eissect. reflexivity.
+            + intros [X HX]. cbn in HX.
+              assert {b : ordinal_carrier B &
+         forall a : A, X a <-> {b' : ordinal_carrier B & ((b' < b) * (a = f b'))%type}} as [b Hb]
+              by now eapply equiv_resize_hprop. simpl.
+              apply path_sigma_hprop. simpl.
+              apply path_forall; intros a. apply path_iff_hprop. 1: admit. admit.
+          - simpl. intros [X1 HX1] [X2 HX2].
+            unfold incl, subtype_inclusion. cbn.
+            split.
+            + intros H3.
+              refine (Trunc_rec _ (trichotomy_ordinal b1 b2)). intros [b1_b2 | H4].
+              * exact b1_b2.
+              * revert H4. rapply Trunc_rec. intros [b1_b2 | b2_b1].
+                -- apply Empty_rec. destruct H3 as [_ H3]. revert H3. rapply Trunc_rec. intros [a [X2a not_X1a]].
+                   apply not_X1a. apply H'1. rewrite b1_b2. apply H'2. exact X2a.
+                -- apply Empty_rec. destruct H3 as [_ H3]. revert H3. rapply Trunc_rec. intros [a [X2a not_X1a]].
+                   apply not_X1a. apply H'1.
+                   apply H'2 in X2a. destruct X2a as [b' [b'_b2 a_fb']].
+                   exists b'. split.
+                   ++ transitivity b2; assumption.
+                   ++ assumption.
+            + intros b1_b2. split.
+              * intros a X1a. apply H'2. apply H'1 in X1a. destruct X1a as [b' [b'_b1 a_fb']].
+                exists b'. split.
+                -- transitivity b1; assumption.
+                -- assumption.
+              * apply tr. exists (f b1). split.
+                -- apply H'2. exists b1; auto.
+                -- intros X1_fb1. apply H'1 in X1_fb1. destruct X1_fb1 as [b' [b'_b1 fb1_fb']].
+                   apply (injective f) in fb1_fb'. destruct fb1_fb'.
+                   apply irreflexivity in b'_b1; try exact _. assumption.
+        }
+      }
+      assert (IsOrdinal X (incl X)). {
+        srefine (isordinal_simulation iso.1); try exact _.
+        intros x1 x2 p.
+        rewrite <- (eissect iso.1 x1).
+        rewrite <- (eissect iso.1 x2).
+        f_ap.
+      }
+      apply apD10 in H0. specialize (H0 X). cbn in H0.
+      refine (transitive_Isomorphism _ (X : Type; ϕ X) _ _ _). {
+        apply isomorphism_inverse. assumption.
+      }
+      enough (merely (Isomorphism (X : Type; ϕ X) C)). {
+        revert X1. rapply Trunc_rec. {
+          exact (ishprop_Isomorphism (Build_Ordinal X (ϕ X) _) C).
+        }
+        auto.
+      }
+      eapply equiv_resize_hprop.
+      change (trunctype_type (BuildhProp (resize_hprop (Trunc (-1) (Isomorphism (X : Type; ϕ X) C))))).
+       rewrite <- H0. cbn. apply equiv_resize_hprop. apply tr. exact iso.*)
 
   Lemma hartogs_number'_injection
     : exists f : hartogs_number' -> (𝒫 (𝒫 (𝒫 A)) : Type),
