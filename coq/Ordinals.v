@@ -1415,7 +1415,7 @@ Section Hartogs_Number.
     uni_fix X = uni_fix Y -> X = Y.
   Proof.
     intros H. rewrite (uni_fix_eq X), (uni_fix_eq Y). now rewrite H.
-  Qed.
+  Admitted.
 
   Lemma hset_equiv_bij {X Y} (f : X -> Y) :
     IsHSet Y -> IsInjective f -> (forall y, merely (exists x, f x = y)) -> X <~> Y.
@@ -1430,7 +1430,7 @@ Section Hartogs_Number.
       + intros [x Hx]. exists x. apply Hx.
     - intros y. cbn. now destruct merely_destruct.
     - intros x. cbn. destruct merely_destruct; try now apply Hf.
-  Qed.
+  Defined.
 
   Lemma hartogs_equiv :
     hartogs_number_carrier <~> hartogs_number'.
@@ -1445,7 +1445,7 @@ Section Hartogs_Number.
       + eapply equiv_resize_hprop, HX.
       + intros [a <-]. cbn. apply tr. exists a. cbn. apply ap.
         apply ishprop_resize_hprop.
-  Qed.
+  Defined.
 
   Lemma hartogs_eq :
     hartogs_number_carrier = hartogs_number'.
@@ -1463,19 +1463,43 @@ Section Hartogs_Number.
     apply ap. apply ishprop_resize_hprop.
   Qed.
 
+  Lemma ordinal_initial (O : Ordinal) (a : O) :
+    Isomorphism O ↓a -> Empty.
+  Proof.
+    intros H % equiv_path_Ordinal.
+    enough (HO : O < O) by apply (irreflexive_ordinal_relation _ _ _ _ HO).
+    exists a. apply H.
+  Qed.
+
+  Lemma resize_ordinal_iso@{i j +}
+             (B : Ordinal@{i _}) (C : Type@{j}) (g : C <~> B)
+    : Isomorphism (resize_ordinal B C g) B.
+  Proof.
+    exists g. intros a a'. cbn. split; apply equiv_resize_hprop.
+  Qed.
+
   Lemma hartogs_number_ninjection :
     ~ (exists f : hartogs_number -> A, IsInjective f).
   Proof.
     cbn. intros [f Hf]. cbn in f.
-    transparent assert (HNO' : hartogs_number').
-    { exists hartogs_number. apply tr. now exists f. }
-    (*transparent assert (HNO : hartogs_number).
-    { exists (univ_fix (hartogs_number'_injection.1 HNO')).
-      apply equiv_resize_hprop. apply tr. now exists HNO'. }*)
-    specialize (isomorphism_to_initial_segment hartogs_number').
-    intros [R HR]. cbn in *. pose (HNO := R HNO').
-    assert (Isomorphism hartogs_number HNO).
-    
-
+    assert (HN : card hartogs_number <= card A). { apply tr. now exists f. }
+    transparent assert (HNO : hartogs_number'). { exists hartogs_number. apply HN. }
+    apply (ordinal_initial hartogs_number' HNO).
+    eapply (transitive_Isomorphism hartogs_number' hartogs_number).
+    - apply isomorphism_inverse, resize_ordinal_iso.
+    - assert (Isomorphism hartogs_number ↓hartogs_number) by apply isomorphism_to_initial_segment.
+      eapply transitive_Isomorphism; try apply X.
+      unshelve eexists.
+      + srapply equiv_adjointify.
+        * intros [a Ha % equiv_resize_hprop]. unshelve eexists.
+          -- exists a. eapply transitive_le_Cardinal; try apply HN.
+             now apply le_Cardinal_lt_Ordinal.
+          -- apply equiv_resize_hprop. cbn. exact Ha.
+        * intros [[a Ha] H % equiv_resize_hprop]. exists a.
+          apply equiv_resize_hprop. apply H.
+        * intros [[a Ha] H]. apply path_sigma_hprop. apply path_sigma_hprop. reflexivity.
+        * intros [a Ha]. apply path_sigma_hprop. reflexivity.
+      + intros [[a Ha] H1] [[b H] H2]. cbn. reflexivity.
+  Qed.
 
 End Hartogs_Number.
