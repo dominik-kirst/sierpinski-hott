@@ -966,6 +966,69 @@ Qed.
     - intros gfa_gfa'. apply Hf. apply Hg. exact gfa_gfa'.
   Defined.
 
+Definition power_inj {pr : PropResizing} {A : Type@{i}} (p : A -> hProp) :
+  (A -> hProp : Type@{i}).
+Proof.
+  exact (fun a => BuildhProp (resize_hprop (p a))).
+Defined.
+
+Lemma power_inj_inj {pr : PropResizing} {ua : Univalence} (A : Type@{i}) (p p' : A -> hProp) :
+  power_inj p = power_inj p' -> p = p'.
+Proof.
+  unfold power_inj. intros H. apply path_forall. intros a. apply path_iff_hprop; intros Ha.
+  - eapply equiv_resize_hprop. change ((fun a : A => BuildhProp (resize_hprop (p' a))) a).
+    rewrite <- H. apply equiv_resize_hprop. apply Ha.
+  - eapply equiv_resize_hprop. change ((fun a : A => BuildhProp (resize_hprop (p a))) a).
+    rewrite H. apply equiv_resize_hprop. apply Ha.
+Defined.
+
+Definition power_morph {pr : PropResizing} {ua : Univalence} {A B : Type@{i}} (f : A -> B) :
+  (A -> hProp) -> (B -> hProp).
+Proof.
+  intros p b. exact (BuildhProp (resize_hprop (forall a, f a = b -> p a))).
+Defined.
+
+Definition power_morph_inj {pr : PropResizing} {ua : Univalence} {A B : Type@{i}} (f : A -> B) :
+  IsInjective f -> forall p p', power_morph f p = power_morph f p' -> p = p'.
+Proof.
+  intros Hf p p' H. apply path_forall. intros a. apply path_iff_hprop; intros Ha.
+  - enough (Hp : power_morph f p (f a)).
+    + rewrite H in Hp. apply equiv_resize_hprop in Hp. apply Hp. reflexivity.
+    + apply equiv_resize_hprop. intros a' -> % Hf. apply Ha.
+  - enough (Hp : power_morph f p' (f a)).
+    + rewrite <- H in Hp. apply equiv_resize_hprop in Hp. apply Hp. reflexivity.
+    + apply equiv_resize_hprop. intros a' -> % Hf. apply Ha.
+Defined.
+
+Definition power_type (A : Type) : Type
+  := A -> hProp.
+
+Notation 𝒫 := power_type.
+
+Definition uni_fix {pr : PropResizing} {ua : Univalence} {A : Type@{i}} (X : 𝒫 (𝒫 (𝒫 A))) :
+  ((𝒫 (𝒫 (𝒫 A))) : Type@{i}).
+Proof.
+  srapply power_morph. 3: apply X. intros P.
+  srapply power_morph. 3: apply P.
+  srapply power_inj.
+Defined.
+
+Lemma uni_fix_inj {pr : PropResizing} {ua : Univalence} {A : Type@{i}} (X Y : 𝒫 (𝒫 (𝒫 A))) :
+  uni_fix X = uni_fix Y -> X = Y.
+Proof.
+  unfold uni_fix. intros H % power_morph_inj; trivial.
+  intros P Q. intros H % power_morph_inj; trivial.
+  intros p q. apply power_inj_inj.
+Qed.
+  
+  
+
+
+
+  
+
+
+
 Section Hartogs_Number.
 
   Universe A.
@@ -1003,9 +1066,6 @@ Section Hartogs_Number.
         apply (isinjective_f x y). exact fx_fy.
   Defined.
 
-  Definition power_type (A : Type) : Type
-    := A -> hProp.
-  Notation 𝒫 := power_type.
   Definition subtype_inclusion {A} (U V : 𝒫 A)
     := (forall a, U a -> V a) /\ merely (exists a : A, V a /\ ~U a).
   Coercion subtype_as_type' {X} (Y : 𝒫 X) : Type
@@ -1050,7 +1110,7 @@ Section Hartogs_Number.
       + intros [p Hp]. simpl. apply path_sigma_hprop. cbn.
         apply path_forall. intros y. apply path_iff_hprop; apply equiv_resize_hprop.
     - intros [p Hp] [q Hq]. simpl. unfold incl. cbn. reflexivity.
-  Defined.
+  Admitted.
 
   Lemma hn_inj :
     IsInjective hn_injection.
@@ -1152,9 +1212,9 @@ Section Hartogs_Number.
         rewrite <- H0. cbn. apply equiv_resize_hprop. apply tr.
         eapply transitive_Isomorphism; try apply iso.
         apply isomorphism_inverse. eapply uni_fix_iso.
-  Admitted.
+  Abort.
 
-  Lemma hn_inj :
+  Lemma hn_inj' :
     IsInjective hn_injection.
   Proof.
     intros [B B_A] [C C_A] H0. unfold hn_injection in H0. apply path_sigma_hprop; cbn.
@@ -1200,17 +1260,14 @@ Section Hartogs_Number.
                 destruct p, q. reflexivity.
               }
               apply equiv_resize_hprop. exists b. intros b'. split; apply equiv_resize_hprop.
-            + simpl. intros x. rewrite eissect. reflexivity.
-            + intros [X HX]. cbn in HX.
-              assert {b : ordinal_carrier B &
-         forall a : A, X a <-> {b' : ordinal_carrier B & ((b' < b) * (a = f b'))%type}} as [b Hb]
-              by now eapply equiv_resize_hprop. simpl.
-              apply path_sigma_hprop. simpl.
-              apply path_forall; intros a. apply path_iff_hprop. 1: admit. admit.
+            + cbn. simpl. intros x. rewrite eissect. reflexivity.
+            + intros [X HX]. cbn in HX. simpl. apply path_sigma_hprop. simpl.
+              apply path_forall; intros a. apply path_iff_hprop.
+              * intros H % equiv_resize_hprop. apply equiv_resize_hprop in HX.
           - simpl. intros [X1 HX1] [X2 HX2].
             unfold incl, subtype_inclusion. cbn.
             split.
-            + intros H3.
+            + intros H3. unfold resize_hprop in HX2. destruct LEM.
               refine (Trunc_rec _ (trichotomy_ordinal b1 b2)). intros [b1_b2 | H4].
               * exact b1_b2.
               * revert H4. rapply Trunc_rec. intros [b1_b2 | b2_b1].
@@ -1241,7 +1298,7 @@ Section Hartogs_Number.
         rewrite <- (eissect iso.1 x2).
         f_ap.
       }
-      apply apD10 in H0. specialize (H0 X). cbn in H0.
+      apply ap in H0. specialize (H0 X). cbn in H0.
       refine (transitive_Isomorphism _ (X : Type; ϕ X) _ _ _). {
         apply isomorphism_inverse. assumption.
       }
@@ -1377,7 +1434,7 @@ Section Hartogs_Number.
         * apply eisretr.
   Defined.
 
-  Definition uni_fix (X : 𝒫 (𝒫 (𝒫 A))) :
+  Definition uni_fix' (X : 𝒫 (𝒫 (𝒫 A))) :
     ((𝒫 (𝒫 (𝒫 A))) : Type@{A}).
   Proof.
     exact (fun p => BuildhProp (resize_hprop (X (fun q =>
@@ -1387,7 +1444,10 @@ Section Hartogs_Number.
   Definition equiv {X} (p q : 𝒫 X) :=
     forall x, p x <-> q x.
 
-  Definition uni_fix' (X : 𝒫 (𝒫 (𝒫 A))) :
+  
+
+
+  Definition uni_fix'' (X : 𝒫 (𝒫 (𝒫 A))) :
     ((𝒫 (𝒫 (𝒫 A))) : Type@{A}).
   Proof.
     exact (fun p => BuildhProp (resize_hprop (forall X', equiv X X' -> X' (fun q =>
@@ -1398,7 +1458,7 @@ Section Hartogs_Number.
   Definition hartogs_number_carrier : Type@{A} :=
     {X : 𝒫 (𝒫 (𝒫 A)) | resize_hprop (merely (exists a, uni_fix (hartogs_number'_injection.1 a) = X))}.
 
-  Lemma uni_fix_eq (X : 𝒫 (𝒫 (𝒫 A))) :
+  (*Lemma uni_fix_eq (X : 𝒫 (𝒫 (𝒫 A))) :
     X = uni_fix X. 
   Proof.
     unfold uni_fix. apply path_forall. intros p.
@@ -1411,11 +1471,11 @@ Section Hartogs_Number.
     - rewrite <- H1. apply path_trunctype. cbn. apply equiv_resize_hprop.
   Qed.
 
-  Lemma uni_fix_inj (X Y : 𝒫 (𝒫 (𝒫 A))) :
+  Lemma uni_fix_inj' (X Y : 𝒫 (𝒫 (𝒫 A))) :
     uni_fix X = uni_fix Y -> X = Y.
   Proof.
     intros H. rewrite (uni_fix_eq X), (uni_fix_eq Y). now rewrite H.
-  Admitted.
+  Admitted.*)
 
   Lemma hset_equiv_bij {X Y} (f : X -> Y) :
     IsHSet Y -> IsInjective f -> (forall y, merely (exists x, f x = y)) -> X <~> Y.
@@ -1440,7 +1500,8 @@ Section Hartogs_Number.
       apply equiv_resize_hprop, tr. exists a. reflexivity.
     - exact _.
     - intros a b. intros H % pr1_path. cbn in H.
-      eapply uni_fix_inj in H. now apply hartogs_number'_injection.2.
+      specialize (uni_fix_inj (hartogs_number'_injection.1 a) (hartogs_number'_injection.1 b)).
+      intros H'. apply H' in H. now apply hartogs_number'_injection.2.
     - intros [X HX]. eapply merely_destruct.
       + eapply equiv_resize_hprop, HX.
       + intros [a <-]. cbn. apply tr. exists a. cbn. apply ap.

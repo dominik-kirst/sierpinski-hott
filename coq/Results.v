@@ -4,6 +4,8 @@ From HoTT Require Import HoTT.
 
 From Sierpinski Require Import Sierpinski Ordinals.
 
+(* WO implies AC *)
+
 Definition AC :=
   forall (X Y : hSet) (R : X -> Y -> hProp), (forall x, hexists (R x)) -> hexists (fun f => forall x, R x (f x)).
 
@@ -49,6 +51,8 @@ Proof.
       eapply ordinal_transitivity; eauto.
   - intros x. cbn. destruct UC as [y Hy]. eapply merely_destruct; try apply Hy. now intros [].
 Qed.
+
+(* GCH implies LEM *)
 
 Section LEM.
 
@@ -146,6 +150,8 @@ Proof.
   - apply H.
 Qed.
 
+(* GCH is a proposition *)
+
 Instance hProp_impred {FE : Funext} X (F : X -> Type) :
   (forall x, IsHProp (F x)) -> IsHProp (forall x, F x).
 Proof.
@@ -163,6 +169,29 @@ Proof.
   - apply Empty_rec. eapply merely_destruct; try eapply (Cantor_inj x); trivial. now apply hinject_trans with x0.
   - enough (H = H') as ->; trivial. apply (hinject (x -> hProp) x0).
 Qed.
+
+(* LEM implies propositional resizing *)
+
+Definition resize_hprop `{ExcludedMiddle} (A : Type) {HA : IsHProp A} : Type0 :=
+  if (LEM A HA) then Unit else Empty.
+
+Instance ishprop_resize_hprop `{ExcludedMiddle} (A : Type) {HA : IsHProp A} :
+  IsHProp (resize_hprop A).
+Proof.
+  unfold resize_hprop. destruct LEM; exact _.
+Defined.
+
+Lemma equiv_resize_hprop `{ExcludedMiddle} (A : Type) {HA : IsHProp A} :
+  A <~> resize_hprop A.
+Proof.
+  unfold resize_hprop. destruct LEM.
+  - apply equiv_iff_hprop; easy.
+  - apply equiv_iff_hprop; easy.
+Defined.
+
+(* GCH implies AC *)
+(* The assumptions of propositional resizing and excluded middle are
+   actually not needed given the previous results. *)
 
 Theorem GCH_AC {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
   GCH -> AC.
