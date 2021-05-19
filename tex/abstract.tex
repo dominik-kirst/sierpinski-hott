@@ -2,6 +2,7 @@
 \usepackage{fullpage}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{hyperref}
@@ -16,19 +17,50 @@
 
 \titlerunning{A Toolbox for Mechanised First-Order Logic}
 
+\newcommand{\nat}{\mathbb{N}}
+\newcommand{\pow}{\mathcal{P}}
+\newcommand{\hprop}{\mathsf{hProp}}
+\newcommand{\hset}{\mathsf{hSet}}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
 \begin{document}
 
 \maketitle
 
-(abstract)
-
-\cite{kirst2021generalised}
+We report on a mechanisation of Sierpi\'nski's result~\cite{sierpinski1947hypothese} that the generalised continuum hypothesis (GCH) implies the axioms of choice (AC), implemented using the HoTT Library~\cite{bauer2017hott} of the Coq proof assistant.
+The result was originally formulated for ZF set theory and in previous work~\cite{kirst2021generalised} we showed that a corresponding statement holds for Coq's constructive type theory.
+Without additional axioms, however, Coq's type theory is not perfectly suited to represent set-theoretic results, especially due to the lack of unique choice and extensionality principles.
+Since these are all available in HoTT, we can complement the previous Coq development based on ad-hoc assumptions with a HoTT mechanisation solely assuming the univalence axiom (and propositional truncation).
+To allow reusing parts of the original Coq code, we opted for the HoTT Library instead of the more deviant Unimath Library~\cite{UniMath}.
 
 \section{Formulating GCH in HoTT}
 
+Cantor's continuum hypothesis (CH) states that there are no cardinalities strictly between the set $\nat$ of natural numbers and its power set $\pow(\nat)$.
+Much more general, GCH states that there are no cardinalities strictly between any infinite set and its power set, controlling the extent of the power set operation to a considerable degree.
+
+Using the type $\nat:\hset$ of natural numbers, the relation $X\le Y:=\exists f:X\to Y.\, \mathsf{injective}\,f$ for cardinality comparisons, and the operation $\pow(X):=X\to\hprop$ for the power set, we formulate GCH in HoTT as:
+$$\forall X Y:\hset.~\nat \le X\le Y\le \pow(X)~\,\to~\, Y\le X ~+~ \pow(X)\le Y$$
+By Cantor's theorem in the form refuting injections $\pow(X)\le X$, the concluding disjunction is exclusive and therefore GCH can be seen to be a proposition.
+Moreover, employing a variant of Cantor's theorem, it follows that already a weak formulation of CH without disjunction implies excluded middle (LEM), which is a slight strengthening of the connection given in~\cite{bridges2016continuum}:
+
+\begin{lemma}
+	$(\forall X:\hset.\,\nat \le X\le \pow(\nat)\to \pow(\nat)\not\le X\to X\le \nat)~\to~\forall P:\hprop.\,P+\neg P$
+\end{lemma}
+\begin{proof}[Sketch]
+	content
+\end{proof}
+
+For the main result assuming GCH as a premise, we are therefore able to argue classically where needed and especially have propositional resizing available to make $X\to\hprop$ a faithful representation of the power set.
+Moreover, it would make no difference if we were to formulate the conclusion of GCH with a modest-looking implication instead of the constructively seemingly stronger disjunction or, employing the classical Cantor-Bernstein theorem, with bijections instead of converse injections.
+
+
 \section{Proof Overview}
 
-\section{Comparison to Previous Mechanisations}
+\section{Comparison to Previous Mechanisation}
+
+\section{Open Questions}
 
 
 \bibliographystyle{plain}
