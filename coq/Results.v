@@ -190,8 +190,7 @@ Proof.
 Defined.
 
 (* GCH implies AC *)
-(* The assumptions of propositional resizing and excluded middle are
-   actually not needed given the previous results. *)
+(* The assumption of excluded middle is actually not needed given the previous result. *)
 
 Theorem GCH_AC {UA : Univalence} {PR : PropResizing} {LEM : ExcludedMiddle} :
   GCH -> AC.

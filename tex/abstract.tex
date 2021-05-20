@@ -6,6 +6,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{hyperref}
+\usepackage{enumitem}
 
 \title{The Generalised Continuum Hypothesis\\Implies the Axiom of Choice in HoTT}
 
@@ -18,22 +19,27 @@
 \titlerunning{A Toolbox for Mechanised First-Order Logic}
 
 \newcommand{\nat}{\mathbb{N}}
+\newcommand{\bool}{\mathbb{B}}
 \newcommand{\pow}{\mathcal{P}}
 \newcommand{\hprop}{\mathsf{hProp}}
 \newcommand{\hset}{\mathsf{hSet}}
+\newcommand{\Ord}{\mathsf{Ord}}
 
 \newtheorem{lemma}{Lemma}
 \newtheorem{theorem}{Theorem}
+\newtheorem{fact}{Fact}
+\newtheorem{larry}{Corollary}
 
 \begin{document}
 
 \maketitle
 
-We report on a Coq mechanisation\footnote{\url{https://github.com/dominik-kirst/sierpinski-hott}} of Sierpi\'nski's result~\cite{sierpinski1947hypothese} that the generalised continuum hypothesis (GCH) implies the axioms of choice (AC), implemented using the HoTT Library~\cite{bauer2017hott}.
+We report on a Coq mechanisation of Sierpi\'nski's result~\cite{sierpinski1947hypothese} that the generalised continuum hypothesis (GCH) implies the axioms of choice (AC), implemented using the HoTT Library~\cite{bauer2017hott}.
 The result was historically formulated for ZF set theory and in previous work~\cite{kirst2021generalised} we showed that a corresponding statement holds for Coq's constructive type theory.
 Without additional axioms, however, Coq's type theory is not perfectly suited to represent set-theoretic results, especially due to the lack of unique choice and extensionality principles.
 Since these are all available in HoTT, we now complement the previous Coq development using ad-hoc assumptions with a new mechanisation assuming the univalence axiom and propositional resizing (as well as propositional truncation).
 To allow reusing parts of the original Coq code, we opted for the HoTT Library instead of the more deviant Unimath Library~\cite{UniMath}.
+The Coq code is available on GitHub (\url{https://github.com/dominik-kirst/sierpinski-hott}) and filed as a pull request.
 
 \section{Formulating GCH in HoTT}
 
@@ -43,29 +49,90 @@ Much more generally, GCH states that there are no cardinalities strictly between
 Using the type $\nat:\hset$ of natural numbers, the relation $X\le Y:=\exists f:X\to Y.\, \mathsf{injective}\,f$ for cardinality comparisons, and the operation $\pow(X):=X\to\hprop$ for the power set, we formulate GCH in HoTT as:
 $$\forall X Y:\hset.~\nat \le X\le Y\le \pow(X)~\,\to~\, Y\le X ~+~ \pow(X)\le Y$$
 By Cantor's theorem in the form refuting injections $\pow(X)\le X$, the concluding disjunction is exclusive and therefore GCH can be seen to be a proposition.
-Moreover, employing a refinement of Cantor's theorem, it follows that already a weak formulation of CH without disjunction implies excluded middle, which is a slight strengthening of the connection given in~\cite{bridges2016continuum}:
+Moreover, employing a refinement of Cantor's theorem, it follows that already a weak formulation of CH without disjunction implies excluded middle (LEM), which is a slight strengthening of the connection given in~\cite{bridges2016continuum}:
 
 \begin{lemma}
 	$(\forall X:\hset.\,\nat \le X\le \pow(\nat)\to X\not\le \nat\to \pow(\nat)\le X)~\to~\forall P:\hprop.\,P+\neg P$
 \end{lemma}
 \begin{proof}[Sketch]
-	We set $X:=\Sigma\, p:\pow(\nat).\,\mathsf{sing}\,p\lor (P+\neg P)$ where $\mathsf{sing}\,p$ denotes that $p$ is a singleton.
-	The comparisons $\nat \le X\le \pow(\nat)$ are obvious and if we assume $X\le\nat$ for the last condition, we may assume $P+\neg P$ due to the negative goal, therefore obtain an injection $\pow(\nat)\le X$ yielding the contradiction $\pow(\nat)\le \nat$.
-	Thus we obtain an injection $i:\pow(\nat)\to X$ and by a refinement of Cantor's theorem we can explicitly construct some $p:\pow(\nat)$ such that $\pi_1(i\,p)$ is not a singleton.
-	But then $P+\neg P$ must be the case.
+	Given $P:\hprop$, the set $X:=\Sigma\, p:\pow(\nat).\,\mathsf{sing}\,p\lor (P+\neg P)$ satisfies the premises of CH, where $\mathsf{sing}\,p$ denotes that $p$ is a singleton.
+	Hence we obtain an injection $i:\pow(\nat)\to X$ and by a variant of Cantor's theorem we obtain some $p:\pow(\nat)$ such that $\pi_1(i\,p)$ is not a singleton, thus $P+\neg P$ must be the case.
 \end{proof}
 
 For our main result assuming GCH as a premise, we are therefore able to argue classically where needed.
 Moreover, it would make no difference if we were to formulate the conclusion of GCH with a modest-looking implication instead of the constructively (seemingly) stronger disjunction or, employing the classical Cantor-Bernstein theorem, with bijections instead of only the converse injections.
 
 
+
+
 \section{Proof Overview}
 
-The proof that GCH implies AC can be organised into two parts.
+It is enough to show that GCH implies the well-ordering theorem (WO), relying on the standard argument that WO implies AC.
+For our purposes, we formulate WO as the guarantee that for every set $X$ there is an ordinal $\alpha:\Ord$ with $X\le \alpha$, where $\Ord$ is defined as the type of sets equipped with transitive, extensional, and well-founded relations as in Section 10.3 of the HoTT book.
+Following this presentation, we establish the basic facts that isomorphic ordinals are equal, satisfy trichotomy (using LEM), that $\Ord$ itself is an ordinal, that every ordinal is isomorphic to the type of all smaller ordinals and give constructions of successor and limit ordinals.
+The central ingredient is that for every set we can construct an ordinal of controlled cardinality:
+
+\newpage
+
+\begin{lemma}
+	Assuming LEM and a set $A:\hset$, we can construct the so-called \emph{Hartogs number} $\aleph(A):\Ord$ on the same universe level as $A$ and satisfying $\aleph(A)\le\pow^3(A)$ as well as $\aleph(A)\not\le A$.
+\end{lemma}
+
+\begin{proof}[Sketch]
+	Preliminarily, we define $\aleph'(A)$ as the type of ordinals admitting injections into $A$, ordered by the natural ordering.
+	This definition increases the universe level but embeds into the resized triple power set $\pow^3(A)$ by mapping every ordinal to its induced partial order of $A$ (relying on trichotomy).
+	We then obtain $\aleph(A)$ as the image of this embedding, retain the bound against $\pow^3(A)$ and conclude $\aleph(A)\not\le A$ since otherwise $\aleph(A)$ would be an initial segment of $\aleph'(A)$, although they are isomorphic.
+\end{proof}
+
+The remainder of the proof consists of showing that GCH ensures $A\le\aleph(A)$, at least for large enough $A$.
+In preparation, we record the necessary amount of cardinal arithmetic phrased for large sets:
+
+\begin{lemma}
+	\setlist{nolistsep}
+	\begin{enumerate}[noitemsep]
+		\item
+		Given LEM, any set $X$ with $\nat\le X$ satisfies $\pow(X)+\pow(X)\simeq \pow(X)$.
+		\item
+		For sets $X,Y$ with $X+X\le X$ and $\pow (X)\le X+Y$ we obtain $\pow (X)\le Y$.
+	\end{enumerate}
+\end{lemma}
+\begin{proof}[Sketch]
+	(1) is by equational reasoning, relying on some non-constructive equivalences such as $\hprop\simeq\bool$, and (2) is by another Cantor-style argument since $X$ essentially cannot contribute to $\pow (X)\le X+Y$.
+\end{proof}
+
+We formulate the way how GCH normalises cardinality-controlled functions on sets abstractly:
+
+\begin{lemma}
+	Assume GCH and a function $F:\hset\to\hset$ preserving the universe level such that there is $k:\nat$ with $F(X)\le \pow^k(X)$ for and $F(X)\not\le X$ for all $X$.
+	Then for every set $X$, we obtain $X\le F\,(\pow(\nat + X))$.
+\end{lemma}
+
+\begin{proof}[Sketch]
+	We show that already $X':=\pow(\nat + X)$ embeds into $F(X')$ by induction on k.
+	The base case $F(X)\le \pow^0(X)$ conflicts with $F(X)\not\le X$ and in the successor case applying GCH on a suitable instance either yields the claim directly or makes the inductive hypothesis applicable, employing the previous lemma.
+\end{proof}
+
+So in summary, GCH implies $X\le \aleph\,(\pow(\nat + X))$ for all $X$, hence WO and ultimately AC.
+
 
 \section{Comparison to Previous Mechanisation}
 
+
+
+
 \section{Open Questions}
+
+We record the following questions we would be interested to investigate/discuss:
+\setlist{nolistsep}
+\begin{itemize}[noitemsep]
+	\item
+	Are there generalisations of constructive versions of CH such as the one in~\cite{gielen1981continuum}?
+	If so, do constructive versions of GCH imply constructive versions of WO?
+	\item
+	To what extent can our formulation of GCH be generalised (e.g.\ to un-truncated injections or higher n-types) without becoming inconsistent? Would these principles be meaningful?
+	\item
+	Could Coq's impredicative $\mathsf{Prop}$ universe be used in context of the HoTT Library to ease impredicative constructions (i.e.\ spare resizing by hand, performance issues with normalisation)?
+\end{itemize}
 
 
 \bibliographystyle{plain}
