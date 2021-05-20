@@ -81,7 +81,7 @@ The central ingredient is that for every set we can construct an ordinal of cont
 \begin{proof}[Sketch]
 	Preliminarily, we define $\aleph'(A)$ as the type of ordinals admitting injections into $A$, ordered by the natural ordering.
 	This definition increases the universe level but embeds into the resized triple power set $\pow^3(A)$ by mapping every ordinal to its induced partial order of $A$ (relying on trichotomy).
-	We then obtain $\aleph(A)$ as the image of this embedding, retain the bound against $\pow^3(A)$ and conclude $\aleph(A)\not\le A$ since otherwise $\aleph(A)$ would be an initial segment of $\aleph'(A)$, although they are isomorphic.
+	We then obtain $\aleph(A)$ as the image of this embedding, retain the bound against $\pow^3(A)$ and conclude $\aleph(A)\not\le A$ since otherwise $\aleph(A)$ would be an initial segment of $\aleph'(A)$, although they are isomorphic by construction.
 \end{proof}
 
 The remainder of the proof consists of showing that GCH ensures $A\le\aleph(A)$, at least for large enough $A$.
@@ -117,6 +117,7 @@ So in summary, GCH implies $X\le \aleph\,(\pow(\nat + X))$ for all $X$, hence WO
 
 \section{Comparison to Previous Mechanisation}
 
+The previous development~\cite{kirst2021generalised} consists of two mechanisations, one for an axiomatised type of sets and one for Coq's type theory itself.
 
 
 
@@ -131,7 +132,7 @@ We record the following questions we would be interested to investigate/discuss:
 	\item
 	To what extent can our formulation of GCH be generalised (e.g.\ to un-truncated injections or higher n-types) without becoming inconsistent? Would these principles be meaningful?
 	\item
-	Could Coq's impredicative $\mathsf{Prop}$ universe be used in context of the HoTT Library to ease impredicative constructions (i.e.\ spare resizing by hand, performance issues with normalisation)?
+	Could Coq's impredicative $\mathsf{Prop}$ universe be used in context of the HoTT Library to ease impredicative constructions (i.e.\ spare resizing by hand and performance issues with normalisation)?
 \end{itemize}
 
 
