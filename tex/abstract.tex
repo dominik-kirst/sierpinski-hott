@@ -7,6 +7,7 @@
 \usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{enumitem}
+\usepackage{cleveref}
 
 \title{The Generalised Continuum Hypothesis\\Implies the Axiom of Choice in HoTT}
 
@@ -75,6 +76,7 @@ The central ingredient is that for every set we can construct an ordinal of cont
 \newpage
 
 \begin{lemma}
+	\label{hartogs}
 	Assuming LEM and a set $A:\hset$, we can construct the so-called \emph{Hartogs number} $\aleph(A):\Ord$ on the same universe level as $A$ and satisfying $\aleph(A)\le\pow^3(A)$ as well as $\aleph(A)\not\le A$.
 \end{lemma}
 
@@ -88,6 +90,7 @@ The remainder of the proof consists of showing that GCH ensures $A\le\aleph(A)$,
 In preparation, we record the necessary amount of cardinal arithmetic phrased for large sets:
 
 \begin{lemma}
+	\label{cardinals}
 	\setlist{nolistsep}
 	\begin{enumerate}[noitemsep]
 		\item
@@ -103,8 +106,9 @@ In preparation, we record the necessary amount of cardinal arithmetic phrased fo
 We formulate the way how GCH normalises cardinality-controlled functions on sets abstractly:
 
 \begin{lemma}
+	\label{sierpinski}
 	Assume GCH and a function $F:\hset\to\hset$ preserving the universe level such that there is $k:\nat$ with $F(X)\le \pow^k(X)$ for and $F(X)\not\le X$ for all $X$.
-	Then for every set $X$, we obtain $X\le F\,(\pow(\nat + X))$.
+	Then for every set $X$ we obtain $X\le F\,(\pow(\nat + X))$.
 \end{lemma}
 
 \begin{proof}[Sketch]
@@ -115,10 +119,17 @@ We formulate the way how GCH normalises cardinality-controlled functions on sets
 So in summary, GCH implies $X\le \aleph\,(\pow(\nat + X))$ for all $X$, hence WO and ultimately AC.
 
 
-\section{Comparison to Previous Mechanisation}
+\section{Comparison to Previous Coq Mechanisation}
 
 The previous development~\cite{kirst2021generalised} consists of two mechanisations, one for an axiomatised type of sets and one for Coq's type theory itself.
+While the former uses the set-theoretic notion of ordinals for the first part of the proof (\Cref{hartogs}), the latter employs the partial well-orders representable within a given type since type-theoretic ordinals are not available in Coq without further assumptions.
+In the HoTT mechanisation, well-behaved ordinals are available and so we could follow the less ad-hoc set-theoretic outline.
+As a consequence the HoTT mechanisation is shorter, even including ordinal theory not relevant for the main result it amounts to 1500loc compared to the 1700loc of the previous type-theoretic mechanisation.
 
+Switching from Coq to HoTT caused a few other notable differences.
+Due to univalence, the equational reasoning necessary for \Cref{cardinals} did not rely on setoid rewriting anymore and the assumptions of functional and propositional extensionality could be eliminated.
+Using $\hprop$ instead of Coq's impredicative $\mathsf{Prop}$ universe for logical expressions and the power set operation further eliminated the assumption of unique choice but also introduced the overhead of proving some types to be propositions and resizing some predicates by hand.
+Especially resizing the Hartogs number to make \Cref{sierpinski} applicable was intricate and the current solution employing an additional injection $\pow^3(A)\to\pow^3(A)$ to fix the levels is not fully satisfactory.
 
 
 \section{Open Questions}
@@ -130,7 +141,7 @@ We record the following questions we would be interested to investigate/discuss:
 	Are there generalisations of constructive versions of CH such as the one in~\cite{gielen1981continuum}?
 	If so, do constructive versions of GCH imply constructive versions of WO?
 	\item
-	To what extent can our formulation of GCH be generalised (e.g.\ to un-truncated injections or higher n-types) without becoming inconsistent? Would these principles be meaningful?
+	To what extent can our formulation of GCH be generalised (e.g.\ to non-truncated injections or higher n-types than sets) without becoming inconsistent? Would these principles be meaningful?
 	\item
 	Could Coq's impredicative $\mathsf{Prop}$ universe be used in context of the HoTT Library to ease impredicative constructions (i.e.\ spare resizing by hand and performance issues with normalisation)?
 \end{itemize}
