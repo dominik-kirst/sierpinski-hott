@@ -40,7 +40,7 @@ The result was historically formulated for ZF set theory and in previous work~\c
 Without additional axioms, however, Coq's type theory is not perfectly suited to represent set-theoretic results, especially due to the lack of unique choice and extensionality principles.
 Since these are all available in HoTT, we now complement the previous Coq development using ad-hoc assumptions with a new mechanisation assuming the univalence axiom and propositional resizing (as well as propositional truncation).
 To allow reusing parts of the original Coq code, we opted for the HoTT Library instead of the more deviant Unimath Library~\cite{UniMath}.
-The Coq code is available on GitHub (\url{https://github.com/dominik-kirst/sierpinski-hott}) and filed as a pull request.
+The Coq code is available on GitHub (\url{https://github.com/dominik-kirst/sierpinski-hott}) and as pull request against the HoTT library.
 
 \section{Formulating GCH in HoTT}
 
@@ -124,7 +124,7 @@ So in summary, GCH implies $X\le \aleph\,(\pow(\nat + X))$ for all $X$, hence WO
 The previous development~\cite{kirst2021generalised} consists of two mechanisations, one for an axiomatised type of sets and one for Coq's type theory itself.
 While the former uses the set-theoretic notion of ordinals for the first part of the proof (\Cref{hartogs}), the latter employs the partial well-orders representable within a given type since type-theoretic ordinals are not available in Coq without further assumptions.
 In the HoTT mechanisation, well-behaved ordinals are available and so we could follow the less ad-hoc set-theoretic outline.
-As a consequence the HoTT mechanisation is shorter, even including ordinal theory not relevant for the main result it amounts to 1500loc compared to the 1700loc of the previous type-theoretic mechanisation.
+As a consequence the HoTT mechanisation is shorter, the parts contributing to the main result amount to roughly 1400loc compared to the 1700loc of the previous type-theoretic mechanisation.
 
 Switching from Coq to HoTT caused a few other notable differences.
 Due to univalence, the equational reasoning necessary for \Cref{cardinals} did not rely on setoid rewriting anymore and the assumptions of functional and propositional extensionality could be eliminated.
