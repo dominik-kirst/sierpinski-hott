@@ -39,8 +39,8 @@ We report on a Coq mechanisation of Sierpi\'nski's result~\cite{sierpinski1947hy
 The result was historically formulated for ZF set theory and in previous work~\cite{kirst2021generalised} we showed that a corresponding statement holds for Coq's constructive type theory.
 Without additional axioms, however, Coq's type theory is not perfectly suited to represent set-theoretic results, especially due to the lack of unique choice and extensionality principles.
 Since these are all available in HoTT, we now complement the previous Coq development using ad-hoc assumptions with a new mechanisation assuming the univalence axiom and propositional resizing.
-To allow reusing parts of the original Coq code, we opted for the HoTT Library instead of the more deviant Unimath Library~\cite{UniMath}.
-The development is available \href{https://github.com/dominik-kirst/sierpinski-hott}{on GitHub} and filed as \href{https://github.com/HoTT/HoTT/pull/1533}{pull request} against the HoTT library.
+To allow reusing parts of the original Coq code, we opted for the HoTT Library instead of the more disparate Unimath Library~\cite{UniMath}.
+The development is available as part of the HoTT Library.
 
 \section{Formulating GCH in HoTT}
 
