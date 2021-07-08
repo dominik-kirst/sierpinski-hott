@@ -1,0 +1,139 @@
+% Author: Daniel Grund (http://rw4.cs.uni-saarland.de/people/grund)
+%
+% Copyright (c) 2012, Daniel Grund, Saarland University
+% All rights reserved.
+% 
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are met:
+%  * Redistributions of source code must retain the above copyright
+%    notice, this list of conditions and the following disclaimer.
+%  * Redistributions in binary form must reproduce the above copyright
+%    notice, this list of conditions and the following disclaimer in the
+%    documentation and/or other materials provided with the distribution.
+%  * Neither the name of the Saarland University nor the
+%    names of its contributors may be used to endorse or promote products
+%    derived from this software without specific prior written permission.
+% 
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+% ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+% DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+% (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+% ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+% (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+% SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemeCS-Saar-Uni}[2012/05/16 v1.0 Unofficial beamer style of the Computer Science Department at Saarland University]
+
+\mode<presentation>
+
+%%%%%%%%%%%%%%%%%%%%%%
+%%% The color theme
+%%%%%%%%%%%%%%%%%%%%%%
+
+%% These are 3 cyan(ish) colors used in the department logo
+\definecolor{sb@dcyan}{RGB}{026, 058, 107}
+\definecolor{sb@mcyan}{RGB}{038, 116, 176}
+\definecolor{sb@lcyan}{RGB}{109, 182, 218}
+
+\definecolor{sb@alert}{RGB}{255, 000, 000}
+\definecolor{sb@example}{RGB}{035, 160, 000}
+
+\usecolortheme[named=sb@dcyan]{structure}
+\setbeamertemplate{sections/subsections in toc shaded}[default][70]
+
+%%%%%%%%%%%%%%%%%%%%%%
+%%% The inner theme
+%%%%%%%%%%%%%%%%%%%%%%
+
+\usecolortheme{rose}
+
+\setbeamercolor{titlelike}{fg=sb@mcyan!50!sb@dcyan}
+
+%% Redefine color of normal block
+\setbeamercolor*{block title}{use=structure, fg=sb@dcyan, bg=sb@dcyan!40}
+
+%% Color used for alerted text.
+\setbeamercolor{alerted text}{fg=sb@alert}
+\setbeamercolor{block title alerted}{use=structure, fg=sb@alert, bg=sb@alert!40}
+
+%% Colors for example text
+\setbeamercolor{block title example}{use=structure, fg=sb@example, bg=sb@example!40}
+
+%% Subsection headings looked too large, IMHO.
+\setbeamerfont{subsection in toc}{size=\small}
+
+% \useinnertheme{rounded}
+\useinnertheme{rectangles}
+
+\usesubitemizeitemtemplate{%
+    \tiny\raise1.5pt\hbox{\color{sb@dcyan}$\blacktriangleright$}%
+}
+\usesubsubitemizeitemtemplate{%
+    \tiny\raise1.5pt\hbox{\color{sb@dcyan}$\bigstar$}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%
+%%% The outer theme
+%%%%%%%%%%%%%%%%%%%%%%
+
+\usecolortheme{dolphin}
+\setbeamercolor*{palette primary}    {use=structure, fg=black, bg=sb@lcyan}
+\setbeamercolor*{palette secondary}  {use=structure, fg=white, bg=sb@mcyan}
+\setbeamercolor*{palette tertiary}   {use=structure, fg=white, bg=sb@dcyan}
+\setbeamercolor*{palette quaternary} {fg=white,bg=black}
+\setbeamercolor*{author in head/foot}{parent=palette tertiary}
+\setbeamercolor*{title in head/foot} {parent=palette secondary}
+\setbeamercolor*{date in head/foot}  {parent=palette primary}
+
+%% Don't use green for example boxes. Instead inherit colors.
+\setbeamercolor*{block title}{use=structure, fg=sb@dcyan, bg=sb@lcyan!50}
+\setbeamercolor*{block body example}{parent=block body}
+\setbeamercolor*{block title example}{parent=block title}
+\setbeamercolor*{example text}{parent=normal text}
+
+\setbeamertemplate{footline}
+{
+	\leavevmode%
+	\hbox{%
+	\begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+		\usebeamerfont{author in head/foot}\insertshortauthor
+	\end{beamercolorbox}%
+	\begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+		\usebeamerfont{title in head/foot}\insertshorttitle
+	\end{beamercolorbox}%
+	\begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+		\usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+		\insertframenumber{}\hspace*{4ex} 
+	\end{beamercolorbox}}%
+	\vskip0pt%
+}
+
+\setbeamersize{text margin left=1em,text margin right=1em}
+
+\setbeamertemplate{navigation symbols}{}
+
+\pgfdeclareimage[width=.25\textwidth]{titlelogo}{cs-saar-uni}
+\titlegraphic{\pgfuseimage{titlelogo}}
+\titlegraphic{%
+	\href{http://www.cs.uni-saarland.de/}{\pgfuseimage{titlelogo}}\\[2mm]
+        \href{https://saarland-informatics-campus.de/en/}{\includegraphics[width=.25\textwidth]{sic.png}}
+%	\includegraphics[width=.25\textwidth]{inr_logo_rouge_pms.pdf}
+}
+
+\pgfdeclareimage[width=.15\textwidth]{logo}{cs-saar-uni}
+\logo{\pgfuseimage{logo}}
+
+\setbeamertemplate{sidebar right}
+{
+	\vskip1em%
+	\llap{\insertlogo\hskip1em}%
+	\vfill%
+	\llap{\usebeamertemplate{navigation symbols}\hskip0.1cm}%
+	\vskip2pt%
+}
+
+\mode<all>

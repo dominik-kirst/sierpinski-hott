@@ -1,0 +1,226 @@
+\documentclass[xcolor=dvipsnames,compress]{beamer}
+\usepackage{beamerthemeCS-Saar-Uni_sic}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[OT1]{fontenc}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{amsfonts,amsmath}
+\usepackage{cleveref}
+\usepackage{scalerel}
+\usepackage{multicol}
+\usepackage{xspace}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{proof}
+\usepackage{natbib}
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows.meta}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;}
+
+\title[GCH Implies AC in HoTT]{The Generalised Continuum Hypothesis\\Implies the Axiom of Choice in HoTT}
+\author[\underline{Dominik Kirst} and Felix Rech]{\underline{Dominik Kirst} and Felix Rech}
+\date[HoTT/UF'21]{Workshop on Homotopy Type Theory / Univalent Foundations\\July 18, 2021}
+
+\newcommand{\nologo}{\setbeamertemplate{logo}{}} % command to set the logo to nothing
+
+
+\DeclareMathAlphabet{\mymathbb}{U}{bbold}{m}{n}
+\DeclareMathOperator*{\dbigvee}{\scalerel*{\bigvee}{\sum}}
+
+% BOXES
+\usepackage[many]{tcolorbox}
+\newtcolorbox{emptybox}[1][]{
+	beamer,
+	width=(0.7\textwidth),
+	% enlarge left by=-3pt,
+	titlerule=0mm,
+	colframe=white,
+	coltitle=black,
+	bottom=6pt, 
+	top=-12pt,
+	left=6pt,  
+	right=6pt,
+	notitle, 
+	adjusted title={},
+	outer arc=.5mm,
+	arc=.5mm,
+	no shadow,
+	fuzzy shadow={1mm}{-1mm}{-1.2mm}{.7mm}{black!20},
+	interior titled code={}
+}
+
+\newtcolorbox{widerbox}[1][]{
+	beamer,
+	width=(0.8\textwidth),
+	% enlarge left by=-3pt,
+	titlerule=0mm,
+	colframe=white,
+	coltitle=black,
+	bottom=6pt, 
+	top=-12pt,
+	left=6pt,  
+	right=6pt,
+	notitle, 
+	adjusted title={},
+	outer arc=.5mm,
+	arc=.5mm,
+	no shadow,
+	fuzzy shadow={1mm}{-1mm}{-1.2mm}{.7mm}{black!20},
+	interior titled code={}
+}
+
+\newtcolorbox{widebox}[1][]{
+	beamer,
+	width=(\textwidth),
+	% enlarge left by=-3pt,
+	titlerule=0mm,
+	colframe=white,
+	coltitle=black,
+	bottom=6pt, 
+	top=-12pt,
+	left=6pt,  
+	right=6pt,
+	notitle, 
+	adjusted title={},
+	outer arc=.5mm,
+	arc=.5mm,
+	no shadow,
+	fuzzy shadow={1mm}{-1mm}{-1.2mm}{.7mm}{black!20},
+	interior titled code={}
+}
+
+
+% TIMELINE
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{stackengine}
+\usetikzlibrary{trees, shapes, calc, positioning, shadows}
+
+\definecolor{darkcerulean}{rgb}{0.063661, 0.257392, 0.477463}
+\definecolor{scooter}{rgb}{0.161162, 0.775760, 0.885416}
+
+
+% #1 – box name
+% #2 – left color
+% #3 – right color
+% #4 – Title (may contain #1)
+\newcommand{\newlargebox}[4]{
+	\newtcolorbox{#1}[1][]{
+		beamer,
+		width=\textwidth+7pt,
+		enlarge left by=-3pt,
+		titlerule=3mm,
+		colframe=white,
+		coltitle={#2},
+		bottom=2pt, 
+		top=-4pt,
+		left=6pt,  
+		toptitle=2pt,
+		bottomtitle=-2pt,
+		fonttitle=\bfseries\large,
+		adjusted title={#4},
+		outer arc=.5mm,
+		arc=.5mm,
+		no shadow,
+		fuzzy shadow={1mm}{-1mm}{-1.2mm}{.7mm}{black!20},
+		interior titled code={
+			\path [left color = {#2}, right color = {#3}]
+			(title.south west) + (8pt, 0) rectangle ++(\textwidth-1pt, 0.02);
+		}
+	}
+}
+
+
+\newlargebox{defaultbox}{darkcerulean}{scooter}{#1} 
+
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+
+
+%%% fonts in math environment
+\newcommand{\MBB}[1]{\ensuremath{\mathbb{#1}}\xspace}  % blackboard
+\newcommand{\MBF}[1]{\ensuremath{\mathbf{#1}}\xspace}  % bold
+\newcommand{\MCL}[1]{\ensuremath{\mathcal{#1}}\xspace} % calligraphy
+\newcommand{\MTT}[1]{\ensuremath{\mathtt{#1}}\xspace}  % type writer
+\newcommand{\MRM}[1]{\ensuremath{\mathrm{#1}}\xspace}  % plain
+\newcommand{\MIT}[1]{\ensuremath{\mathit{#1}}\xspace}  % italic
+\newcommand{\MSF}[1]{\ensuremath{\mathsf{#1}}\xspace}  % sans
+
+
+%%% common symbols
+\newcommand{\Nat}{\MBB{N}}   % The natural numbers
+\newcommand{\Int}{\MBB{Z}}   % The whole numbers
+\newcommand{\Rtn}{\MBB{Q}}   % The rational numbers
+\newcommand{\Real}{\MBB{R}}  % The real numbers
+\newcommand{\Bool}{\MBB{B}}  % The booleans
+\newcommand{\Unit}{\mymathbb{1}}  % Unit type
+
+
+
+%%% marcros
+\newcommand{\Pow}{\MCL P}
+\newcommand{\Prop}{\MBB P}
+\newcommand{\Type}{\MBB T}
+\newcommand{\btrue}{\MSF{tt}}
+\newcommand{\bfalse}{\MSF{ff}}
+\newcommand{\ordinals}{\MCL O}
+\newcommand{\hartogsNumber}{\aleph}
+\newcommand{\succs}[1]{\sigma(#1)}
+\newcommand{\rec}{\MSF{rec}}
+\newcommand{\Set}{\MCL S}
+\newcommand{\WF}{\MCL W}
+\newcommand{\GCHS}{\textnormal{GCH}_\Set}
+\newcommand{\WOS}{\textnormal{WO}_\Set}
+\newcommand{\ACS}{\textnormal{AC}_\Set}
+\newcommand{\GCHT}{\textnormal{GCH}_\Type}
+\newcommand{\WOT}{\textnormal{WO}_\Type}
+\newcommand{\ACT}{\textnormal{AC}_\Type}
+\newcommand{\GCHR}{\textnormal{GCH}_\Prop}
+\newcommand{\ACR}{\textnormal{AC}_\Prop}
+
+
+\begin{document}
+
+%\beamerdefaultoverlayspecification{<+->}
+\renewcommand{\emph}[1]{\textcolor{sb@mcyan}{#1}}
+\definecolor{red}{RGB}{204,0,0}
+\definecolor{yellow}{RGB}{228,242,31}
+\definecolor{green}{RGB}{0,204,0}
+
+\newcommand\refs[1]{%
+	\begin{textblock*}{8cm}(0.3cm,9.2cm)%
+		\scriptsize {\color{gray}#1}
+	\end{textblock*}
+}
+
+
+%\begin{frame}
+%  \tableofcontents
+%\end{frame}
+
+\nologo
+\begin{frame}
+	\maketitle
+\end{frame}
+
+\begin{frame}{Introduction}
+	\cite{kirst2021generalised}
+\end{frame}
+
+
+
+%\begin{frame}[allowframebreaks]{Related Work}
+\begin{frame}{Bibliography}
+\scriptsize
+%\small
+\bibliographystyle{apalike}
+\bibliography{abstract}
+\end{frame}
+
+
+\end{document}
+
