@@ -1,4 +1,4 @@
-\documentclass[xcolor=dvipsnames,compress]{beamer}
+\documentclass[xcolor=dvipsnames,compress,aspectratio=169]{beamer}
 \usepackage{beamerthemeCS-Saar-Uni_sic}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
@@ -55,7 +55,7 @@
 
 \newtcolorbox{widerbox}[1][]{
 	beamer,
-	width=(0.8\textwidth),
+	width=(0.82\textwidth),
 	% enlarge left by=-3pt,
 	titlerule=0mm,
 	colframe=white,
@@ -207,20 +207,50 @@
 	\maketitle
 \end{frame}
 
-\begin{frame}{Background}
-	\cite{kirst2021generalised}
-	statement in set theory (sierpinski, specker, carneiro, wir)
+\begin{frame}{The Generalised Continuum Hypothesis Implies the Axiom of Choice in ZF}
+	\begin{centering}
+		\begin{widerbox}
+			\center
+			There are no cardinalities between an infinite set and its power set (GCH).\\
+			\vspace{0.1cm}
+			$\Downarrow$\\
+			\vspace{0.1cm}
+			Every set has a choice function / can be well-ordered (AC/WO).
+		\end{widerbox}
+	\end{centering}
+
+	\vspace{0.3cm}
+	\begin{itemize}
+		\item
+		Result in ZF set theory announced by~\cite{lindenbaum_communication_1926}
+		\vspace{0.1cm}
+		\item
+		First published proof by~\cite{sierpinski1947}
+		\vspace{0.1cm}
+		\item
+		Refinement using GCH more locally by~\cite{specker_verallgemeinerte_1990}
+		\vspace{0.3cm}
+		\item
+		Mechanisation in Metamath by~\cite{carneiro_gch_2015}
+		\vspace{0.1cm}
+		\item
+		Mechanisation in Coq by~\cite{kirst2021generalised}
+		\begin{itemize}
+			\item
+			Two versions: higher-order ZF and Coq's type theory
+		\end{itemize}
+	\end{itemize}
 \end{frame}
 
 \begin{frame}{Set Theory in Coq's Type Theory}
 	content
 \end{frame}
 
-\begin{frame}{Set Theory in Homotopy Type Theory}
+\begin{frame}{GCH in Coq's Type Theory}
 	content
 \end{frame}
 
-\begin{frame}{GCH in Coq's Type Theory}
+\begin{frame}{Set Theory in Homotopy Type Theory}
 	content
 \end{frame}
 
@@ -276,8 +306,8 @@
 
 %\begin{frame}[allowframebreaks]{Related Work}
 \begin{frame}{Bibliography}
-\scriptsize
-%\small
+%\scriptsize
+\small
 \bibliographystyle{apalike}
 \bibliography{abstract}
 \end{frame}
