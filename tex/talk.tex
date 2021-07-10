@@ -1,4 +1,4 @@
-\documentclass[xcolor=dvipsnames,compress,aspectratio=169]{beamer}
+\documentclass[xcolor=dvipsnames,compress,aspectratio=169,handout]{beamer}
 \usepackage{beamerthemeCS-Saar-Uni_sic}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
@@ -211,11 +211,11 @@
 	\begin{centering}
 		\begin{widerbox}
 			\center
-			There are no cardinalities between an infinite set and its power set (GCH).\\
+			There are no cardinalities between an infinite set and its power set (GCH)\\
 			\vspace{0.1cm}
 			$\Downarrow$\\
 			\vspace{0.1cm}
-			Every set has a choice function / can be well-ordered (AC/WO).
+			Every set has a choice function / can be well-ordered (AC/WO)
 		\end{widerbox}
 	\end{centering}
 
@@ -234,28 +234,96 @@
 		Mechanisation in Metamath by~\cite{carneiro_gch_2015}
 		\vspace{0.1cm}
 		\item
-		Mechanisation in Coq by~\cite{kirst2021generalised}
+		``GCH implies AC in Coq'' by~\cite{kirst2021generalised}
 		\begin{itemize}
 			\item
-			Two versions: higher-order ZF and Coq's type theory
+			Two mechanised variants: higher-order ZF and Coq's type theory
 		\end{itemize}
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Set Theory in Coq's Type Theory}
-	content
+	%Some abstract set-theoretic results apply to dependent type theories,\\ e.g. the equivalence of WO and AC ( \cite{ilik_zermelo,smolka_transfinite_2015}).
+	Using impredicative universe $\Prop$ and propositional existence $(\exists x.\,P\,x):\Prop$ we have:
+	
+	\vspace{0.3cm}
+	\begin{center}
+	\begin{tabular}{c|c|c}
+				&ZF set theory&Coq's Type Theory\\\hline
+				\vphantom{\vdots}Power sets&$\Pow(A)$&$X\to\Prop$\\[0.2cm]
+				Numbers&$\omega$&$\Nat$\\[0.2cm]
+				%Relations&$\Pow(A\times B)$&$X\to Y\to\Prop$\\[0.2cm]
+				%Functions&$\{f\subseteq A\times B\mid \dots \}$&$X\to Y$\\[0.2cm]
+				Cardinality&$\exists f\subseteq A\times B\dots$&$\exists f:X\to Y\dots$\\[0.2cm]
+				Orderings&$\exists R\subseteq A\times A\dots$&$\exists R:X\to X\to\Prop\dots$
+	\end{tabular}
+	\end{center}
+	
+	\vspace{0.3cm}
+	Axioms necessary to make Coq's type theory behave like set theory:
+	\begin{itemize}
+	\item Functional extensionality, to tame function space
+	\item Propositonal extensionality, to tame predicate space
+	\item Unique choice, to identify functions with total functional relations
+	\end{itemize}
 \end{frame}
 
-\begin{frame}{GCH in Coq's Type Theory}
-	content
-\end{frame}
+\newcommand{\trunc}[1]{||#1||}
 
 \begin{frame}{Set Theory in Homotopy Type Theory}
-	content
+	Using propositional resizing to represent propositions in $\Omega:\mathcal{U}_0$ we have:
+
+	\vspace{0.1cm}
+	\begin{center}
+	\begin{tabular}{c|c|c}
+				&ZF set theory&Homotopy Type Theory\\\hline
+				\vphantom{\vdots}Power sets&$\Pow(A)$&$X\to\Omega$\\[0.2cm]
+				Numbers&$\omega$&$\Nat$\\[0.2cm]
+				%Relations&$\Pow(A\times B)$&$X\to Y\to\Prop$\\[0.2cm]
+				%Functions&$\{f\subseteq A\times B\mid \dots \}$&$X\to Y$\\[0.2cm]
+				Cardinality&$\exists f\subseteq A\times B\dots$&$\trunc{\Sigma f:X\to Y\dots}$\\[0.2cm]
+				Orderings&$\exists R\subseteq A\times A\dots$&$\trunc{\Sigma R:X\to X\to\Omega\dots}$
+	\end{tabular}
+	\end{center}
+	
+	\vspace{0.1cm}
+	Naturally suited to represent set theory:
+	\begin{itemize}
+	\item Functional extensionality, implied by univalence
+	\item Propositonal extensionality, implied by univalence
+	\item Unique choice, by the elimination principle of propositional truncation
+	\end{itemize}
+	
+	\vspace{0.3cm}
+	Deviation from ZF: equipotent sets are equal (doesn't affect result, simplifies mechanisation)
 \end{frame}
 
-\begin{frame}{GCH in Homotopy Type Theory}
-	content
+\begin{frame}{GCH, AC, and WO in Coq's Type Theory / HoTT}
+	\begin{widebox}
+			GHC: There are no cardinalities between an infinite set and its power set.
+			$$\only<2>{
+			\forall X Y.\, |\Nat|\le |X|\to \textcolor{lightgray}{|X|  \le |Y|  \le |\Pow(X)|\to |Y|\le|X| \lor |\Pow(X)|\le |Y|}}
+			\only<3>{
+			\textcolor{lightgray}{\forall X Y.\, |\Nat|\le |X|\to~} |X|  \le |Y|  \le |\Pow(X)|\to \textcolor{lightgray}{|Y|\le|X| \lor |\Pow(X)|\le |Y|}}
+			\only<4>{
+			\textcolor{lightgray}{\forall X Y.\, |\Nat|\le |X|\to |X|  \le |Y|  \le |\Pow(X)|\to ~}|Y|\le|X| \lor |\Pow(X)|\le |Y|}
+			\only<5->{
+			\forall X Y.\, |\Nat|\le |X|\to |X|  \le |Y|  \le |\Pow(X)|\to |Y|\le|X| \lor |\Pow(X)|\le |Y|}$$
+	\end{widebox}
+\end{frame}
+
+\newcommand{\hprop}{\mathsf{hProp}}
+\newcommand{\hset}{\mathsf{hSet}}
+\newcommand{\Ord}{\mathsf{Ord}}
+
+\begin{frame}{GCH implies LEM}
+	\begin{lemma}
+		$(\forall X:\hset.\,\Nat \le X\le \Pow(\Nat)\to X\not\le \Nat\to \Pow(\Nat)\le X)~\to~\forall P:\hprop.\,P+\neg P$
+	\end{lemma}
+	\begin{proof}[Sketch]
+		Given $P:\hprop$, the set $X:=\Sigma\, p:\Pow(\Nat).\,\mathsf{sing}\,p\lor (P+\neg P)$ satisfies the premises of CH, where $\mathsf{sing}\,p$ denotes that $p$ is a singleton.
+		Hence we obtain an injection $i:\Pow(\Nat)\to X$ and by a variant of Cantor's theorem we obtain some $p:\Pow(\Nat)$ such that $\pi_1(i\,p)$ is not a singleton, thus $P+\neg P$ must be the case.
+	\end{proof}
 \end{frame}
 
 \begin{frame}
@@ -264,8 +332,42 @@
 	Proof Overview
 \end{frame}
 
-\begin{frame}{Proof Overview}
-	content
+\begin{frame}{Outline}
+	\begin{enumerate}[<+->]
+			\item
+			Instead of AC, show the equivalent WO
+			\vspace{0.4cm}
+			\item
+			To well-order $X$ it suffices to find ordinal $\alpha$ with $|X|\le |\alpha|$
+			\vspace{0.4cm}
+			\item
+			Enough to only well-order infinite $X$ since always $|X|\le|\Nat + X|$
+			\vspace{0.4cm}
+			\item
+			Central construction: \emph{Hartogs number} $\hartogsNumber(X)$
+			\begin{itemize}
+				\item
+				\vspace{0.2cm}
+				Large well-order: $|\hartogsNumber(X)|\not\le |X|$
+				\vspace{0.2cm}
+				\item
+				Controlled height: $|\hartogsNumber(X)|\le|\Pow^k(X)|$ for some $k$
+			\end{itemize}
+			\vspace{0.4cm}
+			\item
+			Develop cardinal arithmetic in the absence of AC
+			\vspace{0.4cm}
+			\item
+			Use GCH to iteratively squeeze in $\hartogsNumber(X)$ and obtain $|X|\le |\hartogsNumber(X)|$
+	%		\begin{itemize}
+	%			\vspace{0.3cm}
+	%			\item
+	%			Suitable instance yields $|X|\le|H(X)|$ or $|H(X)|\le |\Pow^{k-1}(X)|$
+	%			\vspace{0.3cm}
+	%			\item
+	%			Iterate in the latter case until $|H(X)|\le |\Pow^{0}(X)|=|X|$
+	%		\end{itemize}
+		\end{enumerate}
 \end{frame}
 
 \begin{frame}{Ordinal Theory}
