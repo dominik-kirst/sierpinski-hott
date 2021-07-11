@@ -336,9 +336,9 @@
 
 \begin{frame}{GCH implies LEM}
 	Already a weaker formulation of CH$~=~$GCH($\Nat$) implies the excluded middle (LEM):
-	\begin{lemma}[cf. \cite{bridges2016continuum}]
+	\begin{fact}[cf. \cite{bridges2016continuum}]
 		$(\forall X:\hset.\,\Nat \le X\le \Pow(\Nat)\to X\not\le \Nat\to \Pow(\Nat)\le X)~\to~\forall P:\hprop.\,P+\neg P$
-	\end{lemma}
+	\end{fact}
 	\begin{proof}
 		\begin{enumerate}
 			\item
@@ -376,14 +376,14 @@
 			Enough to only well-order infinite $X$ since always $|X|\le|\Nat + X|$
 			\vspace{0.4cm}
 			\item
-			Central construction: \emph{Hartogs number} $\hartogsNumber(X)$
+			Central construction: Hartogs number $\hartogsNumber(X)$
 			\begin{itemize}
 				\item
 				\vspace{0.2cm}
-				Large well-order: $|\hartogsNumber(X)|\not\le |X|$
+				Large ordinal: $|\hartogsNumber(X)|\not\le |X|$
 				\vspace{0.2cm}
 				\item
-				Controlled height: $|\hartogsNumber(X)|\le|\Pow^k(X)|$ for some $k$
+				Controlled height: $|\hartogsNumber(X)|\le|\Pow^3(X)|$
 			\end{itemize}
 			\vspace{0.4cm}
 			\item
@@ -402,20 +402,97 @@
 		\end{enumerate}
 \end{frame}
 
-\begin{frame}{Ordinal Theory}
-	content
+\begin{frame}{Constructive Ordinal Numbers (Chapter 10.3 of the HoTT book)}
+	\begin{definition}
+		An ordinal is a set equipped with a well-founded, extensional, transitive, mere relation.
+	\end{definition}
+
+	\vspace{0.5cm}
+	Properties needed for main result:
+	\begin{itemize}
+		\vspace{0.2cm}
+		\item
+		Isomorphic ordinals are equal
+		\vspace{0.2cm}
+		\item
+		Type $\Ord$ of ordinals with natural ordering is an ordinal
+		\vspace{0.2cm}
+		\item
+		Every ordinal is isomorphic to its set of initial segments
+		\vspace{0.2cm}
+		\item
+		Ordinals satisfy trichotomy and have least elements (requiring LEM)
+	\end{itemize}
+
+	\vspace{0.5cm}
+	Construction of successor and limit ordinals mechanised but irrelevant for main result.
 \end{frame}
 
-\begin{frame}{Hartogs Numbers}
-	content
+\begin{frame}{Hartogs Number of a set $X$}
+	\begin{definition}
+		We define $\aleph'(X):\Ord$ as the type of ordinals $\alpha$ with $\alpha \le X$, ordered by the natural ordering.
+	\end{definition}
+
+	\vspace{0.3cm}
+	The ordinal $\aleph'(X)$ lives in a higher universe level than $X$, therefore need to resize:
+	
+	\begin{theorem}
+		Using LEM, we obtain $\aleph(X)$ by resizing $\aleph'(X)$ along the canonical injection $\aleph'(X)\le\Pow^3(X)$.
+		Then $\aleph(X)$ is in the same universe as $X$ and satisfies $\aleph(X)\le\Pow^3(X)$ as well as $\aleph(X)\not\le X$.
+	\end{theorem}
+	\begin{proof}
+		\begin{enumerate}
+			\item
+			Injection $i: \aleph'(X)\to\Pow^3(X)$ maps $\alpha\le X$ to its induced order on $X$ (using trichotomy).
+			\item
+			Obtain $\aleph(X)$ as image of $i$, so $\aleph(X)\le\Pow^3(X)$ by construction.
+			\item
+			$\aleph(A)\not\le A$ since otherwise $\aleph(A)$ would be an initial segment of the isomorphic $\aleph'(A)$.
+			\qedhere
+		\end{enumerate}
+	\end{proof}
 \end{frame}
 
 \begin{frame}{Cardinal Arithmetic}
-	content
+
+With AC, infinite sets $X$ satisfy $X\simeq X+X$. Without AC we get:
+
+\begin{lemma}
+	Using LEM, every infinite set $X$ satisfies $X\simeq\Unit+X$ and $\Pow(X)\simeq\Pow(X)+\Pow(X)$.
+\end{lemma}
+\vspace{-0.1cm}
+\begin{proof}[Sketch]
+	The first claim 
+	By equational reasoning, e.g. the former implies the latter as follows:
+	$|\Pow(X)|\overset{\textnormal{LEM}}=|\Pow(\Unit+X)|\pause=|\Pow(\Unit)\times \Pow (X)|\pause\overset{\textnormal{LEM}}=|\Bool\times \Pow(X)|\pause= |\Pow(X)+\Pow(X)|$
+\end{proof}
+
+\vspace{0.3cm}
+Once more using Cantor's theorem, there is an unbridgable gap between large $X$ and $\Pow(X)$:
+\begin{lemma}[Sketch]
+	For sets $X$ and $Y$ with $X+X\le X$ and $\Pow (X)\le X+Y$ we obtain $\Pow (X)\le Y$.
+\end{lemma}
+\vspace{-0.1cm}
+\begin{proof}[Sketch]
+	Obtain $i:\Pow (X)\times\Pow (X)\to X+Y$, use $\lambda p.\, i(p,c):\Pow (X)\to Y$ for $c$ the diagonal set of $i$.
+\end{proof}
+
 \end{frame}
 
-\begin{frame}{Iterating GCH}
-	content
+\begin{frame}{Iterate GCH to conclude $X\le \aleph(X)$}
+
+	\begin{theorem}
+		Assume GCH and a function $F:\hset_i\to\hset_i$ such that there is $k:\Nat$ with $F(X)\le Pow^k(X)$ for and $F(X)\not\le X$ for all $X$.
+		Then for every set $X$ we obtain $X\le F\,(\Pow(\Nat + X))$.
+	\end{theorem}
+
+	\begin{proof}
+		Given $X$, we show that already $X':=\Pow(\Nat + X)$ embeds into $F(X')$ by induction on k.
+		TODO
+	\end{proof}
+	\begin{corollary}
+		GCH implies AC.
+	\end{corollary}
 \end{frame}
 
 \begin{frame}
@@ -425,15 +502,44 @@
 \end{frame}
 
 \begin{frame}{Mechanisation Details}
-	content
+	first project in HoTT, just a case study
+	\begin{itemize}
+		\item
+		using HoTT library (easy to use)
+		\item
+		contributed the code (xxx new lines)
+		\item
+		power types actually $X\to\hprop$ to avoid resizing
+		\item
+		getting HN right was hard due to universes
+	\end{itemize}
 \end{frame}
 
 \begin{frame}{Comparison to Previous Coq Mechanisation}
-	content
+	worthwile data point
+	\begin{itemize}
+		\item
+		could reuse code for cardinal arithmetic and main theorem
+		\item
+		hartogs number using ordinals closer to set theory
+		\item
+		slightly shorter, setoid rewriting avoided
+		\item
+		more uniform assumptions
+		\item
+		cost was ad-hoc resizing
+	\end{itemize}
 \end{frame}
 
 \begin{frame}{Open Questions}
-	content
+	\begin{itemize}
+		\item
+		could prop be used to avoid resizing by hand (Coq wip)
+		\item
+		are there meaningful formulations of GCH for higher types
+		\item
+		are there constructive versions of GCH, implying constructive versions of WO
+	\end{itemize}
 \end{frame}
 
 
