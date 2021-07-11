@@ -269,6 +269,9 @@
 \end{frame}
 
 \newcommand{\trunc}[1]{||#1||}
+\newcommand{\hprop}{\mathsf{hProp}}
+\newcommand{\hset}{\mathsf{hSet}}
+\newcommand{\Ord}{\mathsf{Ord}}
 
 \begin{frame}{Set Theory in Homotopy Type Theory}
 	Using propositional resizing to represent propositions in $\Omega:\mathcal{U}_0$ we have:
@@ -298,32 +301,61 @@
 	Deviation from ZF: equipotent sets are equal (doesn't affect result, simplifies mechanisation)
 \end{frame}
 
-\begin{frame}{GCH, AC, and WO in Coq's Type Theory / HoTT}
-	\begin{widebox}
-			GHC: There are no cardinalities between an infinite set and its power set.
-			$$\only<2>{
-			\forall X Y.\, |\Nat|\le |X|\to \textcolor{lightgray}{|X|  \le |Y|  \le |\Pow(X)|\to |Y|\le|X| \lor |\Pow(X)|\le |Y|}}
-			\only<3>{
-			\textcolor{lightgray}{\forall X Y.\, |\Nat|\le |X|\to~} |X|  \le |Y|  \le |\Pow(X)|\to \textcolor{lightgray}{|Y|\le|X| \lor |\Pow(X)|\le |Y|}}
-			\only<4>{
-			\textcolor{lightgray}{\forall X Y.\, |\Nat|\le |X|\to |X|  \le |Y|  \le |\Pow(X)|\to ~}|Y|\le|X| \lor |\Pow(X)|\le |Y|}
-			\only<5->{
-			\forall X Y.\, |\Nat|\le |X|\to |X|  \le |Y|  \le |\Pow(X)|\to |Y|\le|X| \lor |\Pow(X)|\le |Y|}$$
-	\end{widebox}
+\begin{frame}{Formulating GCH in HoTT}
+	With $X\le Y$ as propositional cardinality comparison $\trunc{\Sigma f:X\to Y.\,\mathsf{injective}\,f}$:
+	
+	\vspace{0.5cm}
+	\begin{centering}
+		\begin{widerbox}
+			\center
+			There are no cardinalities between an infinite set and its power set.
+			$$\forall X Y:\hset.~\Nat \le X\le Y\le \Pow(X)~\,\to~\, Y\le X ~+~ \Pow(X)\le Y$$
+			%			$$\only<2>{
+			%			\forall X Y.\, |\Nat|\le |X|\to \textcolor{lightgray}{|X|  \le |Y|  \le |\Pow(X)|\to |Y|\le|X| \lor |\Pow(X)|\le |Y|}}
+			%			\only<3>{
+			%			\textcolor{lightgray}{\forall X Y.\, |\Nat|\le |X|\to~} |X|  \le |Y|  \le |\Pow(X)|\to \textcolor{lightgray}{|Y|\le|X| \lor |\Pow(X)|\le |Y|}}
+			%			\only<4>{
+			%			\textcolor{lightgray}{\forall X Y.\, |\Nat|\le |X|\to |X|  \le |Y|  \le |\Pow(X)|\to ~}|Y|\le|X| \lor |\Pow(X)|\le |Y|}
+			%			\only<5->{
+			%			\forall X Y.\, |\Nat|\le |X|\to |X|  \le |Y|  \le |\Pow(X)|\to |Y|\le|X| \lor |\Pow(X)|\le |Y|}$$
+		\end{widerbox}
+	\end{centering}
+	
+	\vspace{0.5cm}
+	\begin{itemize}
+		\item
+		Proposition since concluding disjunction is exclusive (Cantor's theorem)
+		\vspace{0.3cm}
+		\item
+		Formulated positively since cardinalities aren't comparable without AC
+		\vspace{0.3cm}
+		\item
+		Conclusion just the missing comparison, not yet the equivalence
+	\end{itemize}
 \end{frame}
 
-\newcommand{\hprop}{\mathsf{hProp}}
-\newcommand{\hset}{\mathsf{hSet}}
-\newcommand{\Ord}{\mathsf{Ord}}
-
 \begin{frame}{GCH implies LEM}
-	\begin{lemma}
+	Already a weaker formulation of CH$~=~$GCH($\Nat$) implies the excluded middle (LEM):
+	\begin{lemma}[cf. \cite{bridges2016continuum}]
 		$(\forall X:\hset.\,\Nat \le X\le \Pow(\Nat)\to X\not\le \Nat\to \Pow(\Nat)\le X)~\to~\forall P:\hprop.\,P+\neg P$
 	\end{lemma}
-	\begin{proof}[Sketch]
-		Given $P:\hprop$, the set $X:=\Sigma\, p:\Pow(\Nat).\,\mathsf{sing}\,p\lor (P+\neg P)$ satisfies the premises of CH, where $\mathsf{sing}\,p$ denotes that $p$ is a singleton.
-		Hence we obtain an injection $i:\Pow(\Nat)\to X$ and by a variant of Cantor's theorem we obtain some $p:\Pow(\Nat)$ such that $\pi_1(i\,p)$ is not a singleton, thus $P+\neg P$ must be the case.
+	\begin{proof}
+		\begin{enumerate}
+			\item
+			Given $P:\hprop$, the set $X:=\Sigma\, p:\Pow(\Nat).\,\mathsf{singleton}\,p\lor (P+\neg P)$ satisfies the premises.
+			\item
+			Hence we obtain an injection $i:\Pow(\Nat)\to X$.
+			\item
+			By a variant of Cantor's theorem there is $p:\Pow(\Nat)$ such that $\pi_1(i\,p)$ is not a singleton.
+			\item
+			Thus $P+\neg P$ must be the case.
+			\qedhere
+		\end{enumerate}
 	\end{proof}
+	So by classical reasoning, i.e.\ the Cantor-Bernstein theorem:
+	\begin{corollary}
+		GCH is equivalent to $\forall X Y:\hset.\,\Nat \le X\le Y\le \Pow(X)~\to~ Y = X \,+\, \Pow(X) = Y$.
+	\end{corollary}
 \end{frame}
 
 \begin{frame}
@@ -396,11 +428,11 @@
 	content
 \end{frame}
 
-\begin{frame}{Comparison to Coq Mechanisation}
+\begin{frame}{Comparison to Previous Coq Mechanisation}
 	content
 \end{frame}
 
-\begin{frame}{Some Remaining Questions}
+\begin{frame}{Open Questions}
 	content
 \end{frame}
 
