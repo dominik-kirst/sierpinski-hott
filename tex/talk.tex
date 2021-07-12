@@ -370,27 +370,27 @@
 			Instead of AC, show the equivalent WO
 			\vspace{0.4cm}
 			\item
-			To well-order $X$ it suffices to find ordinal $\alpha$ with $|X|\le |\alpha|$
+			To well-order $X$ it suffices to find ordinal $\alpha$ with $X\le \alpha$
 			\vspace{0.4cm}
 			\item
-			Enough to only well-order infinite $X$ since always $|X|\le|\Nat + X|$
+			Enough to only well-order infinite $X$ since always $X\le\Nat + X$
 			\vspace{0.4cm}
 			\item
 			Central construction: Hartogs number $\hartogsNumber(X)$
 			\begin{itemize}
 				\item
 				\vspace{0.2cm}
-				Large ordinal: $|\hartogsNumber(X)|\not\le |X|$
+				Large ordinal: $\hartogsNumber(X)\not\le X$
 				\vspace{0.2cm}
 				\item
-				Controlled height: $|\hartogsNumber(X)|\le|\Pow^3(X)|$
+				Controlled height: $\hartogsNumber(X)\le\Pow^3(X)$
 			\end{itemize}
 			\vspace{0.4cm}
 			\item
 			Develop cardinal arithmetic in the absence of AC
 			\vspace{0.4cm}
 			\item
-			Use GCH to iteratively squeeze in $\hartogsNumber(X)$ and obtain $|X|\le |\hartogsNumber(X)|$
+			Use GCH to iteratively squeeze in $\hartogsNumber(X)$ and obtain $X\le \hartogsNumber(X)$
 	%		\begin{itemize}
 	%			\vspace{0.3cm}
 	%			\item
@@ -425,7 +425,7 @@
 	\end{itemize}
 
 	\vspace{0.5cm}
-	Construction of successor and limit ordinals mechanised but irrelevant for main result.
+	Also successor and limit ordinals mechanised but irrelevant for main result.
 \end{frame}
 
 \begin{frame}{Hartogs Number of a set $X$}
@@ -445,7 +445,7 @@
 			\item
 			Injection $i: \aleph'(X)\to\Pow^3(X)$ maps $\alpha\le X$ to its induced order on $X$ (using trichotomy).
 			\item
-			Obtain $\aleph(X)$ as image of $i$, so $\aleph(X)\le\Pow^3(X)$ by construction.
+			Obtain $\aleph(X)$ as range of $i$ with ordering of $\aleph'(X)$, then $\aleph(X)\le\Pow^3(X)$ by construction.
 			\item
 			$\aleph(A)\not\le A$ since otherwise $\aleph(A)$ would be an initial segment of the isomorphic $\aleph'(A)$.
 			\qedhere
@@ -453,7 +453,7 @@
 	\end{proof}
 \end{frame}
 
-\begin{frame}{Cardinal Arithmetic}
+\begin{frame}{Cardinal Arithmetic without AC}
 
 With AC, infinite sets $X$ satisfy $X\simeq X+X$. Without AC we get:
 
@@ -462,34 +462,51 @@ With AC, infinite sets $X$ satisfy $X\simeq X+X$. Without AC we get:
 \end{lemma}
 \vspace{-0.1cm}
 \begin{proof}[Sketch]
-	The first claim 
 	By equational reasoning, e.g. the former implies the latter as follows:
-	$|\Pow(X)|\overset{\textnormal{LEM}}=|\Pow(\Unit+X)|\pause=|\Pow(\Unit)\times \Pow (X)|\pause\overset{\textnormal{LEM}}=|\Bool\times \Pow(X)|\pause= |\Pow(X)+\Pow(X)|$
+	$\Pow(X)\overset{\textnormal{LEM}}\simeq\Pow(\Unit+X)\pause\simeq\Pow(\Unit)\times \Pow (X)\pause\overset{\textnormal{LEM}}\simeq\Bool\times \Pow(X)\pause\simeq \Pow(X)+\Pow(X)$
 \end{proof}
 
 \vspace{0.3cm}
-Once more using Cantor's theorem, there is an unbridgable gap between large $X$ and $\Pow(X)$:
-\begin{lemma}[Sketch]
+Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is large:
+\begin{lemma}
 	For sets $X$ and $Y$ with $X+X\le X$ and $\Pow (X)\le X+Y$ we obtain $\Pow (X)\le Y$.
 \end{lemma}
 \vspace{-0.1cm}
 \begin{proof}[Sketch]
-	Obtain $i:\Pow (X)\times\Pow (X)\to X+Y$, use $\lambda p.\, i(p,c):\Pow (X)\to Y$ for $c$ the diagonal set of $i$.
+	Obtain $i:\Pow (X)\times\Pow (X)\to X+Y$, use $\lambda p.\, i(p,c):\Pow (X)\to Y$, $c$ the diagonal set of $i^{-1}$.
 \end{proof}
 
 \end{frame}
 
 \begin{frame}{Iterate GCH to conclude $X\le \aleph(X)$}
 
+	
 	\begin{theorem}
-		Assume GCH and a function $F:\hset_i\to\hset_i$ such that there is $k:\Nat$ with $F(X)\le Pow^k(X)$ for and $F(X)\not\le X$ for all $X$.
+		Assume GCH and a function $F:\hset_i\to\hset_i$ such that there is $k:\Nat$ with $F(X)\le \Pow^k(X)$ and $F(X)\not\le X$ for all $X$.
 		Then for every set $X$ we obtain $X\le F\,(\Pow(\Nat + X))$.
 	\end{theorem}
-
+	\vspace{-0.1cm}
 	\begin{proof}
-		Given $X$, we show that already $X':=\Pow(\Nat + X)$ embeds into $F(X')$ by induction on k.
-		TODO
+		Given $X$, we show that already $Y:=\Pow(\Nat + X)$ embeds into $F(Y)$ by induction on k:
+		\begin{itemize}
+			\vspace{0.2cm}
+			\item
+			If $k=0$ the assumptions $F(X)\le \Pow^k(X)$ and $F(X)\not\le X$ are contradictory.
+			\vspace{0.2cm}
+			\item
+			For $k+1$ apply GCH to the situation $\Pow^{k}(Y)~\le~ \Pow^{k}(Y)+F(Y)~\le~ \Pow^{k+1}(Y)$:
+			\begin{itemize}
+			\vspace{0.2cm}
+			\item
+			If $\Pow^{k}(Y)+F(Y)\le \Pow^{k}(Y)$ then already $F(Y)\le \Pow^{k}(Y)$, conclude with IH.
+			\vspace{0.2cm}
+			\item
+			If $\Pow^{k+1}(Y)\le \Pow^{k}(Y)+F(Y)$ then already $\Pow^{k+1}(Y)\le F(Y)$, conclude $Y\le F(Y)$.
+			\qedhere
+			\end{itemize}
+		\end{itemize}
 	\end{proof}
+	\vspace{-0.1cm}
 	\begin{corollary}
 		GCH implies AC.
 	\end{corollary}
