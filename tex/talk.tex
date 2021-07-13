@@ -207,7 +207,10 @@
 	\maketitle
 \end{frame}
 
+\let\footnoterule\relax
+
 \begin{frame}{The Generalised Continuum Hypothesis Implies the Axiom of Choice in ZF}
+	\pause
 	\begin{centering}
 		\begin{widerbox}
 			\center
@@ -219,7 +222,8 @@
 		\end{widerbox}
 	\end{centering}
 
-	\vspace{0.3cm}
+	\pause
+	\vspace{0.2cm}
 	\begin{itemize}
 		\item
 		Result in ZF set theory announced by~\cite{lindenbaum_communication_1926}
@@ -229,12 +233,13 @@
 		\vspace{0.1cm}
 		\item
 		Refinement using GCH more locally by~\cite{specker_verallgemeinerte_1990}
-		\vspace{0.3cm}
+		\pause
+		\vspace{0.2cm}
 		\item
 		Mechanisation in Metamath by~\cite{carneiro_gch_2015}
 		\vspace{0.1cm}
 		\item
-		``GCH implies AC in Coq'' by~\cite{kirst2021generalised}
+		Paper ``GCH implies AC in Coq'' by~\cite{kirst2021generalised}\footnote<4->{Mostly following \cite{gillman2002} and \cite{smullyan2010}.}
 		\begin{itemize}
 			\item
 			Two mechanised variants: higher-order ZF and Coq's type theory
@@ -259,6 +264,7 @@
 	\end{tabular}
 	\end{center}
 	
+	\pause
 	\vspace{0.3cm}
 	Axioms necessary to make Coq's type theory behave like set theory:
 	\begin{itemize}
@@ -289,6 +295,7 @@
 	\end{tabular}
 	\end{center}
 	
+	\pause
 	\vspace{0.1cm}
 	Naturally suited to represent set theory:
 	\begin{itemize}
@@ -297,13 +304,15 @@
 	\item Unique choice, by the elimination principle of propositional truncation
 	\end{itemize}
 	
+	\pause
 	\vspace{0.3cm}
-	Deviation from ZF: equipotent sets are equal (doesn't affect result, simplifies mechanisation)
+	Over-approximates ZF: equipotent sets are equal (doesn't affect structural result)
 \end{frame}
 
 \begin{frame}{Formulating GCH in HoTT}
 	With $X\le Y$ as propositional cardinality comparison $\trunc{\Sigma f:X\to Y.\,\mathsf{injective}\,f}$:
 	
+	\pause
 	\vspace{0.5cm}
 	\begin{centering}
 		\begin{widerbox}
@@ -323,12 +332,15 @@
 	
 	\vspace{0.5cm}
 	\begin{itemize}
+	 	\pause
 		\item
 		Proposition since concluding disjunction is exclusive (Cantor's theorem)
 		\vspace{0.3cm}
+		\pause
 		\item
 		Formulated positively since cardinalities aren't comparable without AC
 		\vspace{0.3cm}
+		\pause
 		\item
 		Conclusion just the missing comparison, not yet the equivalence
 	\end{itemize}
@@ -339,19 +351,25 @@
 	\begin{fact}[cf. \cite{bridges2016continuum}]
 		$(\forall X:\hset.\,\Nat \le X\le \Pow(\Nat)\to X\not\le \Nat\to \Pow(\Nat)\le X)~\to~\forall P:\hprop.\,P+\neg P$
 	\end{fact}
+	\pause
 	\begin{proof}
 		\begin{enumerate}
+			\pause
 			\item
 			Given $P:\hprop$, the set $X:=\Sigma\, p:\Pow(\Nat).\,\mathsf{singleton}\,p\lor (P+\neg P)$ satisfies the premises.
+			\pause
 			\item
 			Hence we obtain an injection $i:\Pow(\Nat)\to X$.
+			\pause
 			\item
 			By a variant of Cantor's theorem there is $p:\Pow(\Nat)$ such that $\pi_1(i\,p)$ is not a singleton.
+			\pause
 			\item
 			Thus $P+\neg P$ must be the case.
 			\qedhere
 		\end{enumerate}
 	\end{proof}
+	\pause
 	So by classical reasoning, i.e.\ the Cantor-Bernstein theorem:
 	\begin{corollary}
 		GCH is equivalent to $\forall X Y:\hset.\,\Nat \le X\le Y\le \Pow(X)~\to~ Y = X \,+\, \Pow(X) = Y$.
@@ -407,12 +425,13 @@
 		An ordinal is a set equipped with a well-founded, extensional, transitive, mere relation.
 	\end{definition}
 
+	\pause
 	\vspace{0.5cm}
 	Properties needed for main result:
 	\begin{itemize}
 		\vspace{0.2cm}
 		\item
-		Isomorphic ordinals are equal
+		Isomorphic ordinals are equal (instance of SIP)
 		\vspace{0.2cm}
 		\item
 		Type $\Ord$ of ordinals with natural ordering is an ordinal
@@ -424,28 +443,35 @@
 		Ordinals satisfy trichotomy and have least elements (requiring LEM)
 	\end{itemize}
 
+	\pause
 	\vspace{0.5cm}
 	Also successor and limit ordinals mechanised but irrelevant for main result.
 \end{frame}
 
-\begin{frame}{Hartogs Number of a set $X$}
+\begin{frame}{The Hartogs Number $\aleph(X)$ of a Set $X$}
+	\pause
 	\begin{definition}
 		We define $\aleph'(X):\Ord$ as the type of ordinals $\alpha$ with $\alpha \le X$, ordered by the natural ordering.
 	\end{definition}
 
+	\pause
 	\vspace{0.3cm}
 	The ordinal $\aleph'(X)$ lives in a higher universe level than $X$, therefore need to resize:
-	
+	\pause
 	\begin{theorem}
 		Using LEM, we obtain $\aleph(X)$ by resizing $\aleph'(X)$ along the canonical injection $\aleph'(X)\le\Pow^3(X)$.
 		Then $\aleph(X)$ is in the same universe as $X$ and satisfies $\aleph(X)\le\Pow^3(X)$ as well as $\aleph(X)\not\le X$.
 	\end{theorem}
+	\pause
 	\begin{proof}
 		\begin{enumerate}
+			\pause
 			\item
 			Injection $i: \aleph'(X)\to\Pow^3(X)$ maps $\alpha\le X$ to its induced order on $X$ (using trichotomy).
+			\pause
 			\item
 			Obtain $\aleph(X)$ as range of $i$ with ordering of $\aleph'(X)$, then $\aleph(X)\le\Pow^3(X)$ by construction.
+			\pause
 			\item
 			$\aleph(A)\not\le A$ since otherwise $\aleph(A)$ would be an initial segment of the isomorphic $\aleph'(A)$.
 			\qedhere
@@ -455,22 +481,27 @@
 
 \begin{frame}{Cardinal Arithmetic without AC}
 
-With AC, infinite sets $X$ satisfy $X\simeq X+X$. Without AC we get:
+With AC, infinite sets $X$ satisfy $X\simeq X+X$.
+\pause
+Without AC we get:
 
 \begin{lemma}
 	Using LEM, every infinite set $X$ satisfies $X\simeq\Unit+X$ and $\Pow(X)\simeq\Pow(X)+\Pow(X)$.
 \end{lemma}
 \vspace{-0.1cm}
+\pause
 \begin{proof}[Sketch]
 	By equational reasoning, e.g. the former implies the latter as follows:
-	$\Pow(X)\overset{\textnormal{LEM}}\simeq\Pow(\Unit+X)\pause\simeq\Pow(\Unit)\times \Pow (X)\pause\overset{\textnormal{LEM}}\simeq\Bool\times \Pow(X)\pause\simeq \Pow(X)+\Pow(X)$
+	$\Pow(X)\overset~{\textnormal{LEM}}\simeq~\Pow(\Unit+X)~\simeq~\Pow(\Unit)\times \Pow (X)\overset~{\textnormal{LEM}}\simeq~\Bool\times \Pow(X)~\simeq~ \Pow(X)+\Pow(X)$
 \end{proof}
 
+\pause
 \vspace{0.3cm}
 Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is large:
 \begin{lemma}
 	For sets $X$ and $Y$ with $X+X\le X$ and $\Pow (X)\le X+Y$ we obtain $\Pow (X)\le Y$.
 \end{lemma}
+\pause
 \vspace{-0.1cm}
 \begin{proof}[Sketch]
 	Obtain $i:\Pow (X)\times\Pow (X)\to X+Y$, use $\lambda p.\, i(p,c):\Pow (X)\to Y$, $c$ the diagonal set of $i^{-1}$.
@@ -480,32 +511,39 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 
 \begin{frame}{Iterate GCH to conclude $X\le \aleph(X)$}
 
-	
+	\pause
 	\begin{theorem}
 		Assume GCH and a function $F:\hset_i\to\hset_i$ such that there is $k:\Nat$ with $F(X)\le \Pow^k(X)$ and $F(X)\not\le X$ for all $X$.
 		Then for every set $X$ we obtain $X\le F\,(\Pow(\Nat + X))$.
 	\end{theorem}
 	\vspace{-0.1cm}
+	\pause
 	\begin{proof}
+		\pause
 		Given $X$, we show that already $Y:=\Pow(\Nat + X)$ embeds into $F(Y)$ by induction on k:
 		\begin{itemize}
 			\vspace{0.2cm}
+			\pause
 			\item
 			If $k=0$ the assumptions $F(X)\le \Pow^k(X)$ and $F(X)\not\le X$ are contradictory.
 			\vspace{0.2cm}
+			\pause
 			\item
 			For $k+1$ apply GCH to the situation $\Pow^{k}(Y)~\le~ \Pow^{k}(Y)+F(Y)~\le~ \Pow^{k+1}(Y)$:
 			\begin{itemize}
 			\vspace{0.2cm}
+			\pause
 			\item
 			If $\Pow^{k}(Y)+F(Y)\le \Pow^{k}(Y)$ then already $F(Y)\le \Pow^{k}(Y)$, conclude with IH.
 			\vspace{0.2cm}
 			\item
+			\pause
 			If $\Pow^{k+1}(Y)\le \Pow^{k}(Y)+F(Y)$ then already $\Pow^{k+1}(Y)\le F(Y)$, conclude $Y\le F(Y)$.
 			\qedhere
 			\end{itemize}
 		\end{itemize}
 	\end{proof}
+	\pause
 	\vspace{-0.1cm}
 	\begin{corollary}
 		GCH implies AC.
@@ -519,54 +557,131 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 \end{frame}
 
 \begin{frame}{Mechanisation Details}
-	first project in HoTT, just a case study
+
+	\pause
+	\vspace{0.25cm}
+			Based on (and contributed to) the HoTT library
+			\begin{itemize}
+				\vspace{0.15cm}
+				\item
+				Cardinals, ordinals, Hartogs numbers, GCH $\to$ LEM, GCH $\to$ AC, 5 versions of Cantor
+				\vspace{0.15cm}
+				\item
+				1400 lines in total (700 on ordinals, 250 on Hartogs number)
+				\vspace{0.15cm}
+				\item
+				Some code from previous development could be reused
+				\vspace{0.15cm}
+				\item
+				Easy to work with for pure Coq users (tactics, notations, typeclass for $\hprop$)
+			\end{itemize}
+
+	\pause
+	\vspace{0.5cm}
+	Only difficulties connected to power sets and universes:
 	\begin{itemize}
+		\vspace{0.15cm}
 		\item
-		using HoTT library (easy to use)
+		Resizing by hand sometimes gets very slow
+		\vspace{0.15cm}
 		\item
-		contributed the code (xxx new lines)
+		Power sets actually defined as $X\to\hprop$, only resized where needed
+		\vspace{0.15cm}
 		\item
-		power types actually $X\to\hprop$ to avoid resizing
+		Construction of $\aleph(X)$ in two parts for performance reasons
+		\vspace{0.15cm}
 		\item
-		getting HN right was hard due to universes
+		Showing that power sets are sets caused universe conflicts with section usage
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Comparison to Previous Coq Mechanisation}
-	worthwile data point
+	\pause
 	\begin{itemize}
 		\item
-		could reuse code for cardinal arithmetic and main theorem
+		Similar proofs concerning cardinal arithmetic and main theorem
+		\begin{itemize}
+			\item Some necessary equivalences already in HoTT library
+		\end{itemize}
+		\vspace{0.2cm}
+		\pause
 		\item
-		hartogs number using ordinals closer to set theory
+		Ordinals admit a better organized construction of $\aleph(X)$
+		\begin{itemize}
+			\item Previous development based on ``small'' ordinals embeddable into $X$
+		\end{itemize}
+		\vspace{0.2cm}
+		\pause
 		\item
-		slightly shorter, setoid rewriting avoided
+		Setoid rewriting could be avoided by univalence
+		\begin{itemize}
+			\item No need for morphism lemmas like $|X|=|Y|\to |\Pow(X)|=|\Pow(Y)|$
+		\end{itemize}
+		\vspace{0.2cm}
+		\pause
 		\item
-		more uniform assumptions
+		Overall code reduction from 1700loc to 1300loc relevant for main theorem
+		\begin{itemize}
+			\item Disclaimer: both developments not really optimised
+		\end{itemize}
+		\vspace{0.2cm}
+		\pause
 		\item
-		cost was ad-hoc resizing
+		More satisfying theoretical foundation for set-theoretic results
+		\begin{itemize}
+			\item
+			Could dispose of the ad-hoc assumptions from previous development
+		\end{itemize}
+		\vspace{0.2cm}
+		\pause
+		\item
+		Caveat: Coq users are used to static impredicativity
+		\begin{itemize}
+			\item
+			Less experience in universe debugging
+		\end{itemize}
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Open Questions}
-	\begin{itemize}
-		\item
-		could prop be used to avoid resizing by hand (Coq wip)
-		\item
-		are there meaningful formulations of GCH for higher types
-		\item
-		are there constructive versions of GCH, implying constructive versions of WO
-	\end{itemize}
+	\begin{centering}
+		\begin{widerbox}
+		\center
+		Could a static $\mathsf{HProp}$ universe be used instead of resizing by hand?
+		\end{widerbox}
+		\pause
+		\vspace{0.3cm}
+		\begin{widerbox}
+		\center
+		Is ``light HoTT" combining weak univalence with proof irrelevance useful?
+		\end{widerbox}
+		\pause
+		\vspace{0.3cm}
+		\begin{widerbox}
+		\center
+		Are there meaningful/consistent formulations of GCH for higher n-types?
+		\end{widerbox}
+		\pause
+		\vspace{0.3cm}
+		\begin{widerbox}
+		\center
+		Do constructive versions of GCH imply constructive versions of WO?
+		\end{widerbox}
+	\end{centering}
 \end{frame}
 
 
 
 %\begin{frame}[allowframebreaks]{Related Work}
 \begin{frame}{Bibliography}
-%\scriptsize
-\small
+\footnotesize
+%\small
 \bibliographystyle{apalike}
 \bibliography{abstract}
+\end{frame}
+
+\begin{frame}{Alternative constructions of $\aleph(X)$}
+\cite{han2020formal}
 \end{frame}
 
 
