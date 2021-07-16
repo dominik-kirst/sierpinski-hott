@@ -249,13 +249,15 @@
 
 \begin{frame}{Set Theory in Coq's Type Theory}
 	%Some abstract set-theoretic results apply to dependent type theories,\\ e.g. the equivalence of WO and AC ( \cite{ilik_zermelo,smolka_transfinite_2015}).
+	\vspace{0.2cm}
 	Using impredicative universe $\Prop$ and propositional existence $(\exists x.\,P\,x):\Prop$ we have:
 	
-	\vspace{0.3cm}
+	\vspace{0.2cm}
 	\begin{center}
 	\begin{tabular}{c|c|c}
 				&ZF set theory&Coq's Type Theory\\\hline
-				\vphantom{\vdots}Power sets&$\Pow(A)$&$X\to\Prop$\\[0.2cm]
+				\vphantom{\vdots}Membership&$x\in y$&$x:X~$ (for $X:\Type$)\\[0.2cm]
+				Power sets&$\Pow(A)$&$X\to\Prop$\\[0.2cm]
 				Numbers&$\omega$&$\Nat$\\[0.2cm]
 				%Relations&$\Pow(A\times B)$&$X\to Y\to\Prop$\\[0.2cm]
 				%Functions&$\{f\subseteq A\times B\mid \dots \}$&$X\to Y$\\[0.2cm]
@@ -265,7 +267,7 @@
 	\end{center}
 	
 	\pause
-	\vspace{0.3cm}
+	\vspace{0.2cm}
 	Axioms necessary to make Coq's type theory behave like set theory:
 	\begin{itemize}
 	\item Functional extensionality, to tame function space
@@ -280,13 +282,15 @@
 \newcommand{\Ord}{\mathsf{Ord}}
 
 \begin{frame}{Set Theory in Homotopy Type Theory}
+	\vspace{0.2cm}
 	Using propositional resizing to represent propositions in $\Omega:\mathcal{U}_0$ we have:
 
-	\vspace{0.1cm}
+	\vspace{0.2cm}
 	\begin{center}
 	\begin{tabular}{c|c|c}
 				&ZF set theory&Homotopy Type Theory\\\hline
-				\vphantom{\vdots}Power sets&$\Pow(A)$&$X\to\Omega$\\[0.2cm]
+				\vphantom{\vdots}Membership&$x\in y$&$x:X~$ (for $X:\hset$)\\[0.2cm]
+				Power sets&$\Pow(A)$&$X\to\Omega$\\[0.2cm]
 				Numbers&$\omega$&$\Nat$\\[0.2cm]
 				%Relations&$\Pow(A\times B)$&$X\to Y\to\Prop$\\[0.2cm]
 				%Functions&$\{f\subseteq A\times B\mid \dots \}$&$X\to Y$\\[0.2cm]
@@ -296,17 +300,17 @@
 	\end{center}
 	
 	\pause
-	\vspace{0.1cm}
+	\vspace{0.2cm}
 	Naturally suited to represent set theory:
 	\begin{itemize}
-	\item Functional extensionality, implied by univalence
-	\item Propositonal extensionality, implied by univalence
-	\item Unique choice, by the elimination principle of propositional truncation
+	\item Functional extensionality: implied by univalence
+	\item Propositonal extensionality: implied by univalence
+	\item Unique choice: by the elimination principle of propositional truncation
 	\end{itemize}
 	
-	\pause
-	\vspace{0.3cm}
-	Over-approximates ZF: equipotent sets are equal (doesn't affect structural result)
+%	\pause
+%	\vspace{0.3cm}
+%	Over-approximates ZF: equipotent sets are equal (doesn't affect structural result)
 \end{frame}
 
 \begin{frame}{Formulating GCH in HoTT}
@@ -318,7 +322,13 @@
 		\begin{widerbox}
 			\center
 			There are no cardinalities between an infinite set and its power set.
-			$$\forall X Y:\hset.~\Nat \le X\le Y\le \Pow(X)~\,\to~\, Y\le X ~+~ \Pow(X)\le Y$$
+			$$
+			\only<3>{\forall X Y:\hset.~\textcolor{lightgray}{\Nat \le X\le Y\le \Pow(X)~\,\to~\, Y\le X ~+~ \Pow(X)\le Y}}
+			\only<4>{\textcolor{lightgray}{\forall X Y:\hset.}~\Nat \le X\textcolor{lightgray}{~\le Y\le \Pow(X)~\,\to~\, Y\le X ~+~ \Pow(X)\le Y}}
+			\only<5>{\textcolor{lightgray}{\forall X Y:\hset.~\Nat \le~} X\le Y\le \Pow(X)\textcolor{lightgray}{~\,\to~\, Y\le X ~+~ \Pow(X)\le Y}}
+			\only<6>{\textcolor{lightgray}{\forall X Y:\hset.~\Nat \le X\le Y\le \Pow(X)}~\,\to~\, Y\le X ~+~ \Pow(X)\le Y}
+			\only<7->{\forall X Y:\hset.~\Nat \le X\le Y\le \Pow(X)~\,\to~\, Y\le X ~+~ \Pow(X)\le Y}
+			$$
 			%			$$\only<2>{
 			%			\forall X Y.\, |\Nat|\le |X|\to \textcolor{lightgray}{|X|  \le |Y|  \le |\Pow(X)|\to |Y|\le|X| \lor |\Pow(X)|\le |Y|}}
 			%			\only<3>{
@@ -330,6 +340,7 @@
 		\end{widerbox}
 	\end{centering}
 	
+	\pause\pause\pause\pause\pause
 	\vspace{0.5cm}
 	\begin{itemize}
 	 	\pause
@@ -356,7 +367,7 @@
 		\begin{enumerate}
 			\pause
 			\item
-			Given $P:\hprop$, the set $X:=\Sigma\, p:\Pow(\Nat).\,\mathsf{singleton}\,p\lor (P+\neg P)$ satisfies the premises.
+			Given $P:\hprop$, the set $X:=\Sigma\, p:\Pow(\Nat).\,\trunc{\mathsf{singleton}\,p+ (P+\neg P)}$ satisfies the premises.
 			\pause
 			\item
 			Hence we obtain an injection $i:\Pow(\Nat)\to X$.
@@ -372,7 +383,7 @@
 	\pause
 	So by classical reasoning, i.e.\ the Cantor-Bernstein theorem:
 	\begin{corollary}
-		GCH is equivalent to $\forall X Y:\hset.\,\Nat \le X\le Y\le \Pow(X)~\to~ Y = X \,+\, \Pow(X) = Y$.
+		GCH is equivalent to $\forall X Y:\hset.\,\Nat \le X\le Y\le \Pow(X)~\to~ Y = X \,+\, Y=\Pow(X) $.
 	\end{corollary}
 \end{frame}
 
@@ -486,25 +497,25 @@ With AC, infinite sets $X$ satisfy $X\simeq X+X$.
 Without AC we get:
 
 \begin{lemma}
-	Using LEM, every infinite set $X$ satisfies $X\simeq\Unit+X$ and $\Pow(X)\simeq\Pow(X)+\Pow(X)$.
+	Using LEM, every set $X$ with $\Nat\le X$ satisfies $X\simeq\Unit+X$ and $\Pow(X)\simeq\Pow(X)+\Pow(X)$.
 \end{lemma}
 \vspace{-0.1cm}
 \pause
 \begin{proof}[Sketch]
 	By equational reasoning, e.g. the former implies the latter as follows:
-	$\Pow(X)\overset~{\textnormal{LEM}}\simeq~\Pow(\Unit+X)~\simeq~\Pow(\Unit)\times \Pow (X)\overset~{\textnormal{LEM}}\simeq~\Bool\times \Pow(X)~\simeq~ \Pow(X)+\Pow(X)$
+	$\Pow(X)\overset{\textnormal{LEM}}\simeq~\Pow(\Unit+X)~\simeq~\Pow(\Unit)\times \Pow (X)\overset{\textnormal{LEM}}\simeq~\Bool\times \Pow(X)~\simeq~ \Pow(X)+\Pow(X)$
 \end{proof}
 
 \pause
 \vspace{0.3cm}
-Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is large:
+Call $X$ \emph{large enough} if $X\simeq X+X$, then using Cantor's theorem once again:
 \begin{lemma}
-	For sets $X$ and $Y$ with $X+X\le X$ and $\Pow (X)\le X+Y$ we obtain $\Pow (X)\le Y$.
+	For sets $X$ large enough and $Y$ with $\Pow (X)\le X+Y$ we obtain $\Pow (X)\le Y$.
 \end{lemma}
 \pause
 \vspace{-0.1cm}
 \begin{proof}[Sketch]
-	Obtain $i:\Pow (X)\times\Pow (X)\to X+Y$, use $\lambda p.\, i(p,c):\Pow (X)\to Y$, $c$ the diagonal set of $i^{-1}$.
+	Obtain $i:\Pow (X)\times\Pow (X)\hookrightarrow X+Y$, use $\lambda p.\, i(p,c):\Pow (X)\hookrightarrow Y$, $c$ the diagonal set of $i^{-1}$.
 \end{proof}
 
 \end{frame}
@@ -514,13 +525,13 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 	\pause
 	\begin{theorem}
 		Assume GCH and a function $F:\hset_i\to\hset_i$ such that there is $k:\Nat$ with $F(X)\le \Pow^k(X)$ and $F(X)\not\le X$ for all $X$.
-		Then for every set $X$ we obtain $X\le F\,(\Pow(\Nat + X))$.
+		Then for every large enough set $X$ we obtain $X\le F(X)$.
 	\end{theorem}
 	\vspace{-0.1cm}
 	\pause
 	\begin{proof}
 		\pause
-		Given $X$, we show that already $Y:=\Pow(\Nat + X)$ embeds into $F(Y)$ by induction on k:
+		Given a large enough set $X$, we show $X\le F(X)$ by induction on k:
 		\begin{itemize}
 			\vspace{0.2cm}
 			\pause
@@ -529,16 +540,16 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 			\vspace{0.2cm}
 			\pause
 			\item
-			For $k+1$ apply GCH to the situation $\Pow^{k}(Y)~\le~ \Pow^{k}(Y)+F(Y)~\le~ \Pow^{k+1}(Y)$:
+			For $k+1$ apply GCH to the situation $\Pow^{k}(X)~\le~ \Pow^{k}(X)+F(X)~\le~ \Pow^{k+1}(X)$:
 			\begin{itemize}
 			\vspace{0.2cm}
 			\pause
 			\item
-			If $\Pow^{k}(Y)+F(Y)\le \Pow^{k}(Y)$ then already $F(Y)\le \Pow^{k}(Y)$, conclude with IH.
+			If $\Pow^{k}(X)+F(X)\le \Pow^{k}(X)$ then already $F(X)\le \Pow^{k}(X)$, conclude with IH.
 			\vspace{0.2cm}
 			\item
 			\pause
-			If $\Pow^{k+1}(Y)\le \Pow^{k}(Y)+F(Y)$ then already $\Pow^{k+1}(Y)\le F(Y)$, conclude $Y\le F(Y)$.
+			If $\Pow^{k+1}(X)\le \Pow^{k}(X)+F(X)$ then already $\Pow^{k+1}(Y)\le F(X)$, conclude $Y\le F(X)$.
 			\qedhere
 			\end{itemize}
 		\end{itemize}
@@ -564,10 +575,10 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 			\begin{itemize}
 				\vspace{0.15cm}
 				\item
-				Cardinals, ordinals, Hartogs numbers, GCH $\to$ LEM, GCH $\to$ AC, 5 versions of Cantor
+				Cardinals, ordinals, Hartogs numbers, GCH $\to$ LEM, GCH $\to$ AC, 4 versions of Cantor
 				\vspace{0.15cm}
 				\item
-				1400 lines in total (700 on ordinals, 250 on Hartogs number)
+				1400 lines in total (1300 relevant for result, 700 on ordinals, 250 on Hartogs number)
 				\vspace{0.15cm}
 				\item
 				Some code from previous development could be reused
@@ -582,7 +593,7 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 	\begin{itemize}
 		\vspace{0.15cm}
 		\item
-		Resizing by hand sometimes gets very slow
+		Resizing by hand tedious and sometimes very slow
 		\vspace{0.15cm}
 		\item
 		Power sets actually defined as $X\to\hprop$, only resized where needed
@@ -606,7 +617,7 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 		\vspace{0.2cm}
 		\pause
 		\item
-		Ordinals admit a better organized construction of $\aleph(X)$
+		Ordinals admit a better organized set-theoretic construction of $\aleph(X)$
 		\begin{itemize}
 			\item Previous development based on ``small'' ordinals embeddable into $X$
 		\end{itemize}
@@ -638,7 +649,7 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 		Caveat: Coq users are used to static impredicativity
 		\begin{itemize}
 			\item
-			Less experience in universe debugging
+			Hard to trace and debug implicitly added constraints
 		\end{itemize}
 	\end{itemize}
 \end{frame}
@@ -653,7 +664,7 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 		\vspace{0.3cm}
 		\begin{widerbox}
 		\center
-		Is ``light HoTT" combining weak univalence with proof irrelevance useful?
+		Is ``light HoTT" combining weak univalence with UIP in static $\Prop$ useful?
 		\end{widerbox}
 		\pause
 		\vspace{0.3cm}
@@ -678,6 +689,21 @@ Once more using Cantor's theorem, the gap between large $X$ and $\Pow(X)$ is lar
 %\small
 \bibliographystyle{apalike}
 \bibliography{abstract}
+\end{frame}
+
+\begin{frame}{Variants of Cantor's theorem}
+\begin{fact}[Injective Cantor]
+	Given a type $X$, there is no injection $\Pow(X)\le X$.
+\end{fact}
+\begin{fact}[Singleton Cantor]
+	Given a set $X$ and an injection $i:\Pow(X)\to\Pow(X)$, there is $p$ s.t.\ $i\,p$ is not a singleton.
+\end{fact}
+\begin{fact}[Surjective Cantor]
+	Given a type $X$ and a function $f:X\to \Pow(X)$, there is $p$ s.t.\ $f\,x\not = p$ for all $x$.
+\end{fact}
+\begin{fact}[Relational Cantor]
+	Given a type $X$ and a functional relation $R:X\to \Pow(X)\to\Omega$, there is $p$ s.t.\ $\neg R\,x\,p$ for all $x$.
+\end{fact}
 \end{frame}
 
 \begin{frame}{Alternative constructions of $\aleph(X)$}
