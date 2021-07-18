@@ -360,7 +360,7 @@
 \begin{frame}{GCH implies LEM}
 	Already a weaker formulation of CH$~=~$GCH($\Nat$) implies the excluded middle (LEM):
 	\begin{fact}[cf. \cite{bridges2016continuum}]
-		$(\forall X:\hset.\,\Nat \le X\le \Pow(\Nat)\to X\not\le \Nat\to \Pow(\Nat)\le X)~\to~\forall P:\hprop.\,P+\neg P$
+		$(\forall X:\hset.\,\Nat \le X\le \Pow(\Nat)\to X\le \Nat+ \Pow(\Nat)\le X)~\to~\forall P:\hprop.\,P+\neg P$
 	\end{fact}
 	\pause
 	\begin{proof}
@@ -370,7 +370,7 @@
 			Given $P:\hprop$, the set $X:=\Sigma\, p:\Pow(\Nat).\,\trunc{\mathsf{singleton}\,p+ (P+\neg P)}$ satisfies the premises.
 			\pause
 			\item
-			Hence we obtain an injection $i:\Pow(\Nat)\to X$.
+			We can even show $X\not\le \Nat$, hence we obtain an injection $i:\Pow(\Nat)\to X$.
 			\pause
 			\item
 			By a variant of Cantor's theorem there is $p:\Pow(\Nat)$ such that $\pi_1(i\,p)$ is not a singleton.
@@ -400,9 +400,9 @@
 			\vspace{0.4cm}
 			\item
 			To well-order $X$ it suffices to find ordinal $\alpha$ with $X\le \alpha$
-			\vspace{0.4cm}
-			\item
-			Enough to only well-order infinite $X$ since always $X\le\Nat + X$
+%			\vspace{0.4cm}
+%			\item
+%			Enough to only well-order infinite $X$ since always $X\le\Nat + X$
 			\vspace{0.4cm}
 			\item
 			Central construction: Hartogs number $\hartogsNumber(X)$
@@ -459,7 +459,7 @@
 	Also successor and limit ordinals mechanised but irrelevant for main result.
 \end{frame}
 
-\begin{frame}{The Hartogs Number $\aleph(X)$ of a Set $X$}
+\begin{frame}{The Hartogs Number $\aleph(X)$ of a Set $X$, without AC}
 	\pause
 	\begin{definition}
 		We define $\aleph'(X):\Ord$ as the type of ordinals $\alpha$ with $\alpha \le X$, ordered by the natural ordering.
@@ -490,7 +490,7 @@
 	\end{proof}
 \end{frame}
 
-\begin{frame}{Cardinal Arithmetic without AC}
+\begin{frame}{Cardinal Arithmetic, without AC}
 
 With AC, infinite sets $X$ satisfy $X\simeq X+X$.
 \pause
@@ -549,7 +549,7 @@ Call $X$ \emph{large enough} if $X\simeq X+X$, then using Cantor's theorem once 
 			\vspace{0.2cm}
 			\item
 			\pause
-			If $\Pow^{k+1}(X)\le \Pow^{k}(X)+F(X)$ then already $\Pow^{k+1}(Y)\le F(X)$, conclude $Y\le F(X)$.
+			If $\Pow^{k+1}(X)\le \Pow^{k}(X)+F(X)$ then already $\Pow^{k+1}(X)\le F(X)$, conclude $X\le F(X)$.
 			\qedhere
 			\end{itemize}
 		\end{itemize}
@@ -575,7 +575,7 @@ Call $X$ \emph{large enough} if $X\simeq X+X$, then using Cantor's theorem once 
 			\begin{itemize}
 				\vspace{0.15cm}
 				\item
-				Cardinals, ordinals, Hartogs numbers, GCH $\to$ LEM, GCH $\to$ AC, 4 versions of Cantor
+				Cardinals, ordinals, Hartogs numbers, GCH $\to$ LEM, GCH $\to$ AC, 5 versions of Cantor
 				\vspace{0.15cm}
 				\item
 				1400 lines in total (1300 relevant for result, 700 on ordinals, 250 on Hartogs number)
@@ -633,7 +633,7 @@ Call $X$ \emph{large enough} if $X\simeq X+X$, then using Cantor's theorem once 
 		\item
 		Overall code reduction from 1700loc to 1300loc relevant for main theorem
 		\begin{itemize}
-			\item Disclaimer: both developments not really optimised
+			\item Code for $\aleph(X)$ more principled than previous ad-hoc construction
 		\end{itemize}
 		\vspace{0.2cm}
 		\pause
@@ -649,7 +649,7 @@ Call $X$ \emph{large enough} if $X\simeq X+X$, then using Cantor's theorem once 
 		Caveat: Coq users are used to static impredicativity
 		\begin{itemize}
 			\item
-			Hard to trace and debug implicitly added constraints
+			Hard to trace and debug implicitly added universe constraints
 		\end{itemize}
 	\end{itemize}
 \end{frame}
@@ -695,19 +695,22 @@ Call $X$ \emph{large enough} if $X\simeq X+X$, then using Cantor's theorem once 
 \begin{fact}[Injective Cantor]
 	Given a type $X$, there is no injection $\Pow(X)\le X$.
 \end{fact}
+\vspace{-0.1cm}
 \begin{fact}[Singleton Cantor]
 	Given a set $X$ and an injection $i:\Pow(X)\to\Pow(X)$, there is $p$ s.t.\ $i\,p$ is not a singleton.
 \end{fact}
+\vspace{-0.1cm}
 \begin{fact}[Surjective Cantor]
 	Given a type $X$ and a function $f:X\to \Pow(X)$, there is $p$ s.t.\ $f\,x\not = p$ for all $x$.
 \end{fact}
+\vspace{-0.1cm}
+\begin{fact}[Predicative Cantor]
+	Given a type $X$ and a function $f:X\to (X \to \mathcal U)$, there is $p$ s.t.\ $f\,x\not = p$ for all $x$.
+\end{fact}
+\vspace{-0.1cm}
 \begin{fact}[Relational Cantor]
 	Given a type $X$ and a functional relation $R:X\to \Pow(X)\to\Omega$, there is $p$ s.t.\ $\neg R\,x\,p$ for all $x$.
 \end{fact}
-\end{frame}
-
-\begin{frame}{Alternative constructions of $\aleph(X)$}
-\cite{han2020formal}
 \end{frame}
 
 
