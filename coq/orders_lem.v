@@ -1,5 +1,7 @@
 (* By an idea Andrew Swan brought forward in the HoTT-Zulip, the assumption that every type can be equipped with an irreflexive and extensional relation implies excluded middle, provided some mild extensionality assumptions that hold in HoTT. The result translates to Coq's type theory under the sole assumption of propositional extensionality. Also, a slight strengthening is that not full extensionality of the orders is required but only the uniqueness of minimal elements. *)
 
+Require Import Init.Prelude.
+
 Section WO.
 
   (* We first assume extensionality of propositions. *)
